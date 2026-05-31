@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Top Mekanlar — Canlı Google Maps</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F0EDE8;color:#1A1A1A;font-size:13px}
+.hdr{background:linear-gradient(135deg,#1A1410,#3D2B1F);color:#fff;padding:18px 24px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.hdr h1{font-size:18px;font-weight:700}
+.hdr p{font-size:12px;color:rgba(255,255,255,0.5);margin-top:3px}
+.hdr-badges{display:flex;gap:6px;flex-wrap:wrap}
+.hdr-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(212,185,140,0.2);color:#D4B98C;border:1px solid rgba(212,185,140,0.35)}
+.filter-panel{background:#fff;border-bottom:1px solid #E0DBD4;padding:16px 20px}
+.filter-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#BBB;margin-bottom:12px}
+.filter-grid{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#999}
+.fg select{padding:8px 28px 8px 10px;font-size:12px;font-weight:500;border:1.5px solid #E0DBD4;border-radius:10px;background:#FAFAF8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;color:#1A1A1A;cursor:pointer;min-width:140px;appearance:none}
+.fg select:focus{outline:none;border-color:#C4A87A}
+.search-wrap{flex:1;min-width:200px;display:flex;flex-direction:column;gap:5px}
+.search-wrap label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#999}
+.search-wrap input{width:100%;padding:8px 10px;font-size:12px;border:1.5px solid #E0DBD4;border-radius:10px;background:#FAFAF8;color:#1A1A1A}
+.search-wrap input:focus{outline:none;border-color:#C4A87A}
+.btn-load{padding:9px 18px;font-size:12px;font-weight:700;border:none;border-radius:10px;cursor:pointer;background:linear-gradient(135deg,#C4A87A,#A08040);color:#fff;white-space:nowrap;align-self:flex-end}
+.btn-load:disabled{opacity:0.4;cursor:not-allowed}
+.btn-csv{padding:9px 16px;font-size:12px;font-weight:700;border:none;border-radius:10px;cursor:pointer;background:linear-gradient(135deg,#3D2B1F,#1A1410);color:#D4B98C;white-space:nowrap;align-self:flex-end}
+.btn-csv:disabled{opacity:0.3;cursor:not-allowed}
+.chips-panel{background:#fff;border-bottom:1px solid #E0DBD4;padding:10px 20px;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.chips-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#CCC;margin-right:4px}
+.chip{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid transparent;cursor:pointer}
+.chip.off{background:#F0EDE8!important;color:#BBB!important;border-color:#DDD!important;text-decoration:line-through}
+.chip-toggle{padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px dashed #CCC;cursor:pointer;background:#fff;color:#999;margin-left:4px}
+.progress-panel{background:#fff;border-bottom:1px solid #E0DBD4;padding:12px 20px;display:none}
+.progress-text{font-size:12px;color:#666;margin-bottom:8px}
+.progress-bar-bg{height:6px;background:#F0EDE8;border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#C4A87A,#A08040);border-radius:3px;transition:width 0.3s;width:0%}
+.progress-sub{font-size:11px;color:#AAA;margin-top:6px}
+.stats-bar{display:flex}
+.stat-item{flex:1;padding:11px 16px;display:flex;flex-direction:column;align-items:center;background:#2C1F15;color:#fff;border-right:1px solid rgba(255,255,255,0.08)}
+.stat-item:last-child{border-right:none}
+.stat-val{font-size:20px;font-weight:800;color:#D4B98C;line-height:1}
+.stat-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:3px}
+.tbl-wrap{overflow-x:auto;overflow-y:auto;max-height:500px;background:#fff}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{position:sticky;top:0;z-index:5}
+thead th{background:#F8F5F0;padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#AAA;border-bottom:2px solid #E8E3DC;cursor:pointer;user-select:none;white-space:nowrap}
+thead th:hover{color:#555}
+thead th.sort-asc::after{content:" ↑";color:#C4A87A}
+thead th.sort-desc::after{content:" ↓";color:#C4A87A}
+tbody tr{border-bottom:1px solid #F5F2EE}
+tbody tr:hover{background:#FDFBF8}
+td{padding:10px 12px;vertical-align:middle}
+.city-name{font-weight:700;font-size:12px}
+.country-name{color:#BBB;font-size:10px;display:block;margin-top:1px}
+.place-name{font-weight:700;font-size:12px;line-height:1.35}
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.addr-text{color:#AAA;font-size:11px;line-height:1.4}
+.rating-wrap{display:flex;align-items:center;gap:3px}
+.rating-num{font-size:15px;font-weight:900}
+.review-num{color:#888;font-size:11px}
+.map-link{display:inline-flex;align-items:center;gap:3px;color:#1A73E8;font-size:11px;font-weight:600;text-decoration:none;padding:4px 8px;border-radius:6px;background:#EBF3FE}
+.map-link:hover{background:#D2E7FD}
+.empty-msg{padding:48px;text-align:center;color:#BBB;font-size:14px}
+.error-box{background:#FEF2F2;border:1px solid #FCA5A5;border-radius:8px;padding:12px 16px;margin:12px 20px;font-size:12px;color:#B91C1C;display:none}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div>
+    <h1>🌍 Global Top Mekanlar — Canlı Google Maps</h1>
+    <p>Gerçek zamanlı · Google Places API · Puan ve yorum sayıları doğrudan Google'dan</p>
+  </div>
+  <div class="hdr-badges">
+    <span class="hdr-badge">★ 4.5+ filtreli</span>
+    <span class="hdr-badge">💬 300+ yorum</span>
+    <span class="hdr-badge">⚡ Canlı veri</span>
+  </div>
+</div>
+
+<div class="filter-panel">
+  <div class="filter-title">🔧 Filtreler & Kontrol</div>
+  <div class="filter-grid">
+    <div class="fg"><label>🏙 Şehir</label><select id="sel-city"><option value="">Tüm şehirler</option></select></div>
+    <div class="fg"><label>🌐 Ülke</label><select id="sel-country"><option value="">Tüm ülkeler</option></select></div>
+    <div class="fg"><label>⭐ Min. Puan</label>
+      <select id="sel-rat">
+        <option value="4.5">⭐ 4.5 ve üzeri</option>
+        <option value="4.6">⭐ 4.6 ve üzeri</option>
+        <option value="4.7">⭐ 4.7 ve üzeri</option>
+        <option value="4.8">⭐ 4.8 ve üzeri</option>
+      </select>
+    </div>
+    <div class="fg"><label>💬 Min. Yorum</label>
+      <select id="sel-rev">
+        <option value="300">💬 300+</option>
+        <option value="500">💬 500+</option>
+        <option value="1000">💬 1.000+</option>
+        <option value="5000">💬 5.000+</option>
+      </select>
+    </div>
+    <div class="search-wrap">
+      <label>🔍 Arama</label>
+      <input type="text" id="txt-search" placeholder="Mekan adı, şehir veya adres...">
+    </div>
+    <button class="btn-load" id="btn-load">▶ Veri Çek</button>
+    <button class="btn-csv" id="btn-csv" disabled>⬇ CSV İndir</button>
+  </div>
+</div>
+
+<div class="chips-panel">
+  <span class="chips-label">Kategori:</span>
+  <div id="chips-container" style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;"></div>
+  <span class="chip-toggle" id="chip-all-btn">± Tümü</span>
+</div>
+
+<div class="error-box" id="error-box"></div>
+
+<div class="progress-panel" id="progress-panel">
+  <div class="progress-text" id="progress-text">Hazırlanıyor...</div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+  <div class="progress-sub" id="progress-sub"></div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-val" id="s-total">—</span><span class="stat-lbl">Toplam</span></div>
+  <div class="stat-item"><span class="stat-val" id="s-cities">—</span><span class="stat-lbl">Şehir</span></div>
+  <div class="stat-item"><span class="stat-val" id="s-avg">—</span><span class="stat-lbl">Ort. Puan</span></div>
+  <div class="stat-item"><span class="stat-val" id="s-shown">—</span><span class="stat-lbl">Gösterilen</span></div>
+</div>
+
+<div class="tbl-wrap">
+  <table>
+    <thead><tr>
+      <th data-col="city" style="width:105px">Şehir</th>
+      <th data-col="name" style="width:170px">Mekan Adı</th>
+      <th data-col="cat" style="width:115px">Kategori</th>
+      <th data-col="addr" style="width:185px">Adres</th>
+      <th data-col="rat" style="width:70px" class="sort-desc">Puan</th>
+      <th data-col="rev" style="width:85px">Yorumlar</th>
+      <th style="width:60px">Harita</th>
+    </tr></thead>
+    <tbody id="tbl-body">
+      <tr><td colspan="7" class="empty-msg">▶ "Veri Çek" butonuna basarak Google Maps'ten gerçek verileri yükleyin</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Google Maps Places API JS SDK - bu file:// sorununu çözer -->
+<script>
+var API_KEY = 'AIzaSyBy1Glbh36-y6e3_6AB0_G_ki7bOWaf4zg';
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBy1Glbh36-y6e3_6AB0_G_ki7bOWaf4zg&libraries=places&callback=initApp" async defer></script>
+
+<script>
+var CITIES=[
+  {city:'Paris',country:'Fransa',flag:'🇫🇷'},{city:'London',country:'İngiltere',flag:'🇬🇧'},
+  {city:'New York',country:'ABD',flag:'🇺🇸'},{city:'Tokyo',country:'Japonya',flag:'🇯🇵'},
+  {city:'Dubai',country:'BAE',flag:'🇦🇪'},{city:'Barcelona',country:'İspanya',flag:'🇪🇸'},
+  {city:'Rome',country:'İtalya',flag:'🇮🇹'},{city:'Istanbul',country:'Türkiye',flag:'🇹🇷'},
+  {city:'Singapore',country:'Singapur',flag:'🇸🇬'},{city:'Bangkok',country:'Tayland',flag:'🇹🇭'},
+  {city:'Lisbon',country:'Portekiz',flag:'🇵🇹'},{city:'Berlin',country:'Almanya',flag:'🇩🇪'},
+  {city:'Buenos Aires',country:'Arjantin',flag:'🇦🇷'},{city:'Mexico City',country:'Meksika',flag:'🇲🇽'},
+  {city:'Seoul',country:'Güney Kore',flag:'🇰🇷'},{city:'Sydney',country:'Avustralya',flag:'🇦🇺'},
+  {city:'Miami',country:'ABD',flag:'🇺🇸'},{city:'Vienna',country:'Avusturya',flag:'🇦🇹'},
+  {city:'Amsterdam',country:'Hollanda',flag:'🇳🇱'},{city:'Cape Town',country:'G.Afrika',flag:'🇿🇦'}
+];
+
+var CATS=[
+  {k:'hamburger',  l:'🍔 Hamburger',      q:'best hamburger',          bg:'#FEF3DC',fg:'#7A4A08',bd:'#F0C860'},
+  {k:'steakhouse', l:'🥩 Steakhouse',     q:'best steakhouse',         bg:'#FDECEA',fg:'#8B2010',bd:'#F09080'},
+  {k:'italian',    l:'🍝 İtalyan',        q:'best italian restaurant', bg:'#FFF0ED',fg:'#8B3010',bd:'#F0A888'},
+  {k:'desserts',   l:'🍰 Tatlı',          q:'best dessert cafe',       bg:'#FDE8F4',fg:'#881A50',bd:'#F080C0'},
+  {k:'coffee',     l:'☕ Kahve',          q:'best coffee',             bg:'#EDE5D8',fg:'#5C3A1E',bd:'#C4A070'},
+  {k:'seafood',    l:'🦞 Deniz Ürünleri', q:'best seafood restaurant', bg:'#E4F2FD',fg:'#0A4A88',bd:'#70B8F0'},
+  {k:'cocktail',   l:'🍹 Kokteyl Bar',    q:'best cocktail bar',       bg:'#EEE8FD',fg:'#3A2888',bd:'#9880EE'},
+  {k:'nightclub',  l:'🎵 Gece Kulübü',   q:'best nightclub',          bg:'#E8E4F8',fg:'#281E68',bd:'#8870D8'},
+  {k:'traditional',l:'🫕 Geleneksel',    q:'best traditional food',   bg:'#E4F5EE',fg:'#0A5838',bd:'#58C890'},
+  {k:'pizza',      l:'🍕 Pizza',          q:'best pizza',              bg:'#FDECEA',fg:'#7A2010',bd:'#E07858'}
+];
+
+var records=[], activeCats={}, sortCol='rat', sortDir=-1, isLoading=false;
+var service=null, mapDiv=null;
+CATS.forEach(function(c){activeCats[c.k]=true;});
+
+function initApp(){
+  mapDiv=document.createElement('div');
+  mapDiv.style.display='none';
+  document.body.appendChild(mapDiv);
+  var map=new google.maps.Map(mapDiv,{center:{lat:0,lng:0},zoom:1});
+  service=new google.maps.places.PlacesService(map);
+  buildChips();
+  render();
+}
+
+function catInfo(k){
+  for(var i=0;i<CATS.length;i++){if(CATS[i].k===k)return CATS[i];}
+  return{k:k,l:k,bg:'#EEE',fg:'#333',bd:'#CCC'};
+}
+
+function buildChips(){
+  var el=document.getElementById('chips-container');
+  var html='';
+  CATS.forEach(function(c){
+    html+='<span class="chip" data-k="'+c.k+'" style="background:'+c.bg+';color:'+c.fg+';border-color:'+c.bd+'">'+c.l+'</span>';
+  });
+  el.innerHTML=html;
+  el.querySelectorAll('.chip').forEach(function(s){
+    s.addEventListener('click',function(){
+      var k=s.getAttribute('data-k'),ci=catInfo(k);
+      activeCats[k]=!activeCats[k];
+      if(activeCats[k]){s.classList.remove('off');s.style.background=ci.bg;s.style.color=ci.fg;s.style.borderColor=ci.bd;}
+      else{s.classList.add('off');}
+      render();
+    });
+  });
+  document.getElementById('chip-all-btn').addEventListener('click',function(){
+    var allOn=CATS.every(function(c){return activeCats[c.k];});
+    CATS.forEach(function(c){activeCats[c.k]=!allOn;});
+    el.querySelectorAll('.chip').forEach(function(s){
+      var k=s.getAttribute('data-k'),ci=catInfo(k);
+      if(activeCats[k]){s.classList.remove('off');s.style.background=ci.bg;s.style.color=ci.fg;s.style.borderColor=ci.bd;}
+      else{s.classList.add('off');}
+    });
+    render();
+  });
+}
+
+function rebuildSelects(){
+  var cities=[],countries=[];
+  records.forEach(function(r){
+    if(cities.indexOf(r.city)<0)cities.push(r.city);
+    if(countries.indexOf(r.country)<0)countries.push(r.country);
+  });
+  cities.sort();countries.sort();
+  var fc=document.getElementById('sel-city'),fco=document.getElementById('sel-country');
+  var cv=fc.value,cov=fco.value;
+  fc.innerHTML='<option value="">Tüm şehirler</option>';
+  fco.innerHTML='<option value="">Tüm ülkeler</option>';
+  cities.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;fc.appendChild(o);});
+  countries.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;fco.appendChild(o);});
+  fc.value=cv;fco.value=cov;
+}
+
+function getFiltered(){
+  var city=document.getElementById('sel-city').value;
+  var country=document.getElementById('sel-country').value;
+  var minRat=parseFloat(document.getElementById('sel-rat').value);
+  var minRev=parseInt(document.getElementById('sel-rev').value);
+  var s=document.getElementById('txt-search').value.toLowerCase().trim();
+  return records.filter(function(r){
+    if(!activeCats[r.cat])return false;
+    if(city&&r.city!==city)return false;
+    if(country&&r.country!==country)return false;
+    if(r.rat<minRat)return false;
+    if(r.rev<minRev)return false;
+    if(s){var h=(r.name+' '+r.city+' '+r.addr+' '+r.country).toLowerCase();if(h.indexOf(s)<0)return false;}
+    return true;
+  });
+}
+
+function ratingColor(v){
+  if(v>=4.8)return'#1A7A2E';
+  if(v>=4.7)return'#2E8B2E';
+  if(v>=4.6)return'#C47A00';
+  return'#A06000';
+}
+
+function render(){
+  var fd=getFiltered();
+  fd.sort(function(a,b){
+    var av=a[sortCol],bv=b[sortCol];
+    if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}
+    return sortDir*(av>bv?1:av<bv?-1:0);
+  });
+  var tbody=document.getElementById('tbl-body');
+  if(!fd.length){
+    tbody.innerHTML='<tr><td colspan="7" class="empty-msg">'+(records.length?'🔍 Kriterlere uyan mekan bulunamadı':'▶ "Veri Çek" butonuna basın')+'</td></tr>';
+  } else {
+    var rows='';
+    fd.forEach(function(r){
+      var ci=catInfo(r.cat);
+      var mapUrl='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(r.name+' '+r.city)+'&query_place_id='+r.place_id;
+      var rc=ratingColor(r.rat);
+      rows+='<tr>'+
+        '<td><span class="city-name">'+r.flag+' '+r.city+'</span><span class="country-name">'+r.country+'</span></td>'+
+        '<td><span class="place-name">'+r.name+'</span></td>'+
+        '<td><span class="badge" style="background:'+ci.bg+';color:'+ci.fg+';border:1.5px solid '+ci.bd+'">'+ci.l+'</span></td>'+
+        '<td><span class="addr-text">'+r.addr+'</span></td>'+
+        '<td><div class="rating-wrap"><span class="rating-num" style="color:'+rc+'">'+r.rat.toFixed(1)+'</span><span style="color:'+rc+';font-size:11px">★</span></div></td>'+
+        '<td><span class="review-num">💬 '+r.rev.toLocaleString('tr-TR')+'</span></td>'+
+        '<td><a class="map-link" href="'+mapUrl+'" target="_blank">📍 Aç</a></td>'+
+        '</tr>';
+    });
+    tbody.innerHTML=rows;
+  }
+  var avg=records.length?records.reduce(function(s,r){return s+r.rat;},0)/records.length:0;
+  document.getElementById('s-total').textContent=records.length||'—';
+  document.getElementById('s-cities').textContent=records.length?new Set(records.map(function(r){return r.city;})).size:'—';
+  document.getElementById('s-avg').textContent=records.length?avg.toFixed(2):'—';
+  document.getElementById('s-shown').textContent=records.length?fd.length:'—';
+}
+
+function searchOne(query,cityObj,catKey,callback){
+  if(!service){callback([]);return;}
+  var req={query:query+' '+cityObj.city,fields:['name','rating','user_ratings_total','formatted_address','place_id']};
+  service.textSearch(req,function(results,status){
+    if(status!==google.maps.places.PlacesServiceStatus.OK||!results){callback([]);return;}
+    var out=[];
+    for(var i=0;i<Math.min(results.length,3);i++){
+      var p=results[i];
+      if(p.rating>=4.5&&p.user_ratings_total>=300){
+        out.push({
+          place_id:p.place_id||'',
+          name:p.name||'',
+          addr:p.formatted_address||'',
+          rat:p.rating||0,
+          rev:p.user_ratings_total||0,
+          city:cityObj.city,
+          country:cityObj.country,
+          flag:cityObj.flag,
+          cat:catKey
+        });
+      }
+    }
+    callback(out);
+  });
+}
+
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+
+document.getElementById('btn-load').addEventListener('click',async function(){
+  if(isLoading)return;
+  if(!service){
+    document.getElementById('error-box').style.display='block';
+    document.getElementById('error-box').textContent='⚠️ Google Maps henüz yüklenmedi, birkaç saniye bekleyip tekrar deneyin.';
+    return;
+  }
+  document.getElementById('error-box').style.display='none';
+  isLoading=true;
+  records=[];
+  var btn=document.getElementById('btn-load');
+  btn.disabled=true; btn.textContent='⏳ Yükleniyor...';
+  document.getElementById('progress-panel').style.display='block';
+  document.getElementById('btn-csv').disabled=true;
+
+  var total=CITIES.length*CATS.length, done=0;
+
+  for(var ci=0;ci<CITIES.length;ci++){
+    var cityObj=CITIES[ci];
+    for(var qi=0;qi<CATS.length;qi++){
+      var cat=CATS[qi];
+      document.getElementById('progress-text').textContent=cityObj.flag+' '+cityObj.city+' → '+cat.l+' aranıyor...';
+      document.getElementById('progress-sub').textContent=done+'/'+total+' sorgu · '+records.length+' mekan bulundu';
+      document.getElementById('progress-fill').style.width=Math.round((done/total)*100)+'%';
+
+      await new Promise(function(resolve){
+        searchOne(cat.q,cityObj,cat.k,function(results){
+          records=records.concat(results);
+          resolve();
+        });
+      });
+
+      done++;
+      render(); rebuildSelects();
+      await sleep(300);
+    }
+  }
+
+  document.getElementById('progress-text').textContent='✅ Tamamlandı — '+records.length+' mekan yüklendi';
+  document.getElementById('progress-fill').style.width='100%';
+  setTimeout(function(){document.getElementById('progress-panel').style.display='none';},4000);
+  btn.disabled=false; btn.textContent='🔄 Yenile';
+  document.getElementById('btn-csv').disabled=false;
+  isLoading=false;
+});
+
+document.querySelectorAll('thead th[data-col]').forEach(function(th){
+  th.addEventListener('click',function(){
+    var c=th.getAttribute('data-col');
+    sortDir=(sortCol===c)?sortDir*-1:-1; sortCol=c;
+    document.querySelectorAll('thead th').forEach(function(t){t.classList.remove('sort-asc','sort-desc');});
+    th.classList.add(sortDir===1?'sort-asc':'sort-desc');
+    render();
+  });
+});
+
+['sel-city','sel-country','sel-rat','sel-rev'].forEach(function(id){
+  document.getElementById(id).addEventListener('change',render);
+});
+document.getElementById('txt-search').addEventListener('input',render);
+
+document.getElementById('btn-csv').addEventListener('click',function(){
+  var fd=getFiltered();
+  var h=['Şehir','Ülke','Mekan Adı','Kategori','Adres','Google Puan','Yorum Sayısı'];
+  var rows=fd.map(function(r){
+    return[r.city,r.country,'"'+r.name+'"',catInfo(r.cat).l.replace(/[^\x20-\x7E]/g,'').trim(),'"'+r.addr+'"',r.rat,r.rev].join(',');
+  });
+  var csv='\uFEFF'+[h.join(',')].concat(rows).join('\n');
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='global_top_mekanlar_live.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+});
+</script>
+</body>
+</html>
