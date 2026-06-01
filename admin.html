@@ -4,89 +4,87 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Neyeriz Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"DM Sans",sans-serif;background:#0D0D0D;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.card{background:#1A1A1A;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;width:100%;max-width:480px}
-h1{font-size:18px;font-weight:700;color:#C9A84C;margin-bottom:3px}
-.sub{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:20px}
-.fl{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;margin-top:12px}
-input,select{width:100%;padding:9px 11px;background:#0D0D0D;border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:13px;font-family:"DM Sans",sans-serif}
-input:focus,select:focus{outline:none;border-color:#C9A84C}
-.btn{width:100%;padding:11px;background:#C9A84C;color:#0D0D0D;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:12px}
-.btn:disabled{opacity:0.4;cursor:not-allowed}
-.res{margin-top:14px;padding:14px;background:#0D0D0D;border-radius:8px;border:1px solid rgba(255,255,255,0.08);display:none}
-.rn{font-size:14px;font-weight:700}
-.rr{font-size:17px;font-weight:800;color:#C9A84C;margin:5px 0 2px}
-.ra{font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:10px}
-.cats{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 12px}
-.cb{padding:4px 9px;border-radius:20px;font-size:11px;font-weight:600;border:1.5px solid rgba(255,255,255,0.1);cursor:pointer;background:transparent;color:rgba(255,255,255,0.4)}
-.cb.on{border-color:#C9A84C;color:#C9A84C;background:rgba(201,168,76,0.1)}
-.btna{width:100%;padding:9px;background:#1A7A2E;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
-.div{height:1px;background:rgba(255,255,255,0.06);margin:16px 0}
-.pi{padding:9px 11px;background:#0D0D0D;border-radius:8px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
-.pn{font-size:12px;font-weight:600}
-.pm{font-size:10px;color:rgba(255,255,255,0.3);margin-top:1px}
-.pd{background:none;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:16px;padding:0 2px}
-.pd:hover{color:#F09080}
-.btnp{width:100%;padding:9px;background:transparent;color:#C9A84C;border:1.5px solid #C9A84C;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px}
-.btnp:hover{background:#C9A84C;color:#0D0D0D}
-.pc{font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:6px}
-.msg{margin-top:10px;padding:9px 12px;border-radius:8px;font-size:12px;display:none}
-.ok{background:rgba(26,122,46,0.2);color:#58C890;border:1px solid #1A7A2E}
-.err{background:rgba(196,57,26,0.2);color:#F09080;border:1px solid #C4391A}
-#main{display:none}
+body{font-family:sans-serif;background:#111;color:#fff;margin:0;padding:20px;min-height:100vh}
+.card{background:#222;border-radius:12px;padding:24px;max-width:480px;margin:40px auto}
+h2{color:#C9A84C;margin-bottom:16px}
+input,select{width:100%;padding:10px;background:#111;border:1px solid #444;border-radius:8px;color:#fff;font-size:14px;margin-bottom:12px}
+button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.green{background:#1A7A2E;color:#fff}
+.outline{background:transparent;color:#C9A84C;border:2px solid #C9A84C}
+.msg{padding:10px;border-radius:8px;margin-top:8px;font-size:13px;display:none}
+.ok{background:#1A7A2E22;border:1px solid #1A7A2E;color:#58C890}
+.err{background:#C4391A22;border:1px solid #C4391A;color:#F09080}
+.badge-pos{background:#1A7A2E22;color:#58C890;padding:3px 8px;border-radius:4px;font-size:11px;margin:2px;display:inline-block}
+.badge-neg{background:#C4391A22;color:#F09080;padding:3px 8px;border-radius:4px;font-size:11px;margin:2px;display:inline-block}
+.pitem{background:#111;border-radius:8px;padding:10px;margin-bottom:6px;display:flex;justify-content:space-between}
+.pdel{background:none;border:none;color:#666;cursor:pointer;font-size:18px;width:auto;margin:0;padding:0}
+label{font-size:11px;color:#888;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
+.cats{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.catbtn{padding:5px 10px;border-radius:20px;font-size:11px;border:1px solid #444;background:transparent;color:#888;cursor:pointer;width:auto;margin:0}
+.catbtn.on{border-color:#C9A84C;color:#C9A84C;background:#C9A84C22}
+#lock{display:block}
+#app{display:none}
 </style>
 </head>
 <body>
-<div class="card">
-<div id="lock">
-  <h1>Neyeriz Admin</h1>
-  <p class="sub">Sifreyi girerek devam edin</p>
-  <span class="fl">Sifre</span>
-  <input type="password" id="pw" placeholder="Sifre">
-  <button class="btn" onclick="chk()">Giris</button>
-  <div class="msg err" id="pe" style="display:none">Yanlis sifre</div>
+
+<div id="lock" class="card">
+  <h2>Neyeriz Admin</h2>
+  <label>Sifre</label>
+  <input type="password" id="pw" placeholder="Sifre girin">
+  <button onclick="giris()">Giris</button>
+  <div class="msg err" id="hata">Yanlis sifre</div>
 </div>
-<div id="main">
-  <h1>Neyeriz Admin</h1>
-  <p class="sub">Google Maps'ten mekan ekle</p>
-  <span class="fl">Google Maps Linki veya Mekan Adi</span>
-  <input type="text" id="q" placeholder="Ornek: Nusr-Et Istanbul">
-  <button class="btn" id="bf" onclick="fp()">Mekan Bilgilerini Cek</button>
-  <div class="res" id="rs">
-    <div class="rn" id="rn"></div>
-    <div class="rr" id="rr"></div>
-    <div class="ra" id="ra"></div>
-    <span class="fl">Kategori</span>
-    <div class="cats" id="cats"></div>
-    <span class="fl">Sehir</span>
-    <select id="rc"></select>
-    <button class="btna" style="margin-top:10px" onclick="ap()">Listeye Ekle</button>
+
+<div id="app" style="display:none">
+  <div class="card">
+    <h2>Mekan Ekle</h2>
+    <label>Google Maps Linki veya Mekan Adi</label>
+    <input type="text" id="q" placeholder="Ornek: Nusr-Et Istanbul">
+    <button onclick="ara()">Mekan Bilgilerini Cek</button>
+    
+    <div id="sonuc" style="display:none;margin-top:16px;padding:14px;background:#111;border-radius:8px">
+      <div id="mname" style="font-size:15px;font-weight:700;margin-bottom:4px"></div>
+      <div id="mrat" style="color:#C9A84C;font-size:18px;font-weight:800;margin-bottom:3px"></div>
+      <div id="maddr" style="font-size:11px;color:#666;margin-bottom:10px"></div>
+      <div id="mbadges" style="margin-bottom:12px"></div>
+      <label>Kategori</label>
+      <div class="cats" id="cats"></div>
+      <label>Sehir</label>
+      <select id="sehir"></select>
+      <button class="green" onclick="ekle()" style="margin-top:8px">Listeye Ekle</button>
+    </div>
+    <div class="msg" id="msg"></div>
   </div>
-  <div class="msg" id="msg"></div>
-  <div class="div"></div>
-  <div class="pc" id="pc">0 mekan bekliyor</div>
-  <div id="pl"></div>
-  <button class="btnp" onclick="ps()">Siteye Yukle</button>
+
+  <div class="card">
+    <h2>Bekleyen Mekanlar (<span id="cnt">0</span>)</h2>
+    <div id="liste"></div>
+    <button class="outline" onclick="yukle()">Siteye Yukle</button>
+  </div>
 </div>
-</div>
+
 <script>
-var PW="neyeriz2025";
-var AK="AIzaSyA-gGCMNxcTMb2CsTJYJnlqTxBTY6-NL6I";
-var GT="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";
-var GR="sermetbaykal/places";
-var sc="",ft=null;
-var pd=JSON.parse(localStorage.getItem("np")||"[]");
-var CATS=[
+var SIFRE = "neyeriz2025";
+var AK = "";
+var GT = "";
+var CK = "";
+var GR = "sermetbaykal/places";
+
+var seciliKat = "";
+var mekan = null;
+var bekleyenler = JSON.parse(localStorage.getItem("bk") || "[]");
+
+var KATLAR = [
   {k:"hamburger",l:"Hamburger"},{k:"steakhouse",l:"Steakhouse"},
   {k:"italian",l:"Italyan"},{k:"desserts",l:"Tatli"},
   {k:"coffee",l:"Kahve"},{k:"seafood",l:"Deniz Urunleri"},
   {k:"cocktail",l:"Kokteyl Bar"},{k:"nightclub",l:"Gece Kulubu"},
   {k:"traditional",l:"Geleneksel"},{k:"pizza",l:"Pizza"}
 ];
-var CITIES=[
+
+var SEHIRLER = [
   {city:"Paris",country:"Fransa",flag:"FR"},{city:"London",country:"Ingiltere",flag:"GB"},
   {city:"New York",country:"ABD",flag:"US"},{city:"Tokyo",country:"Japonya",flag:"JP"},
   {city:"Dubai",country:"BAE",flag:"AE"},{city:"Barcelona",country:"Ispanya",flag:"ES"},
@@ -98,99 +96,254 @@ var CITIES=[
   {city:"Miami",country:"ABD",flag:"US"},{city:"Vienna",country:"Avusturya",flag:"AT"},
   {city:"Amsterdam",country:"Hollanda",flag:"NL"},{city:"Cape Town",country:"G.Afrika",flag:"ZA"}
 ];
-function chk(){
-  if(document.getElementById("pw").value===PW){
-    document.getElementById("lock").style.display="none";
-    document.getElementById("main").style.display="block";
-    init();
+
+function giris() {
+  var pw = document.getElementById("pw").value;
+  if (pw === SIFRE) {
+    document.getElementById("lock").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    baslat();
   } else {
-    var e=document.getElementById("pe");e.style.display="block";
-    setTimeout(function(){e.style.display="none";},2000);
+    var h = document.getElementById("hata");
+    h.style.display = "block";
+    setTimeout(function(){ h.style.display = "none"; }, 2000);
   }
 }
-function init(){
-  var ch=document.getElementById("cats");
-  CATS.forEach(function(c){
-    var b=document.createElement("button");b.className="cb";b.textContent=c.l;b.dataset.k=c.k;
-    b.onclick=function(){document.querySelectorAll(".cb").forEach(function(x){x.classList.remove("on");});b.classList.add("on");sc=c.k;};
+
+function baslat() {
+  var ch = document.getElementById("cats");
+  ch.innerHTML = "";
+  KATLAR.forEach(function(k) {
+    var b = document.createElement("button");
+    b.className = "catbtn";
+    b.textContent = k.l;
+    b.dataset.k = k.k;
+    b.onclick = function() {
+      document.querySelectorAll(".catbtn").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on");
+      seciliKat = k.k;
+    };
     ch.appendChild(b);
   });
-  var fc=document.getElementById("rc");
-  CITIES.forEach(function(c){var o=document.createElement("option");o.value=c.city;o.textContent=c.city;fc.appendChild(o);});
-  rp();
+
+  var sel = document.getElementById("sehir");
+  sel.innerHTML = "";
+  SEHIRLER.forEach(function(s) {
+    var o = document.createElement("option");
+    o.value = s.city;
+    o.textContent = s.city;
+    sel.appendChild(o);
+  });
+
+  listele();
 }
-async function fp(){
-  var q=document.getElementById("q").value.trim();
-  if(!q){sm("Link veya ad girin","err");return;}
-  var btn=document.getElementById("bf");btn.disabled=true;btn.textContent="Cekiliyor...";
-  try{
-    var r=await fetch("https://places.googleapis.com/v1/places:searchText",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress"},
-      body:JSON.stringify({textQuery:q,maxResultCount:1,languageCode:"en"})
+
+async function ara() {
+  var q = document.getElementById("q").value.trim();
+  if (!q) { mesaj("Mekan adi girin", "err"); return; }
+  
+  var btn = event.target;
+  btn.textContent = "Cekiliyor...";
+  btn.disabled = true;
+  document.getElementById("sonuc").style.display = "none";
+
+  try {
+    var r = await fetch("https://places.googleapis.com/v1/places:searchText", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": AK,
+        "X-Goog-FieldMask": "places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress,places.reviews"
+      },
+      body: JSON.stringify({ textQuery: q, maxResultCount: 1, languageCode: "en" })
     });
-    var d=await r.json();
-    if(d.places&&d.places.length){
-      var p=d.places[0];
-      ft={place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0};
-      document.getElementById("rn").textContent=ft.name;
-      document.getElementById("rr").textContent=ft.rat.toFixed(1)+" yildiz - "+ft.rev.toLocaleString("tr-TR")+" yorum";
-      document.getElementById("ra").textContent=ft.addr;
-      document.getElementById("rs").style.display="block";
-    } else {sm("Mekan bulunamadi","err");}
-  }catch(e){sm("Hata: "+e.message,"err");}
-  btn.disabled=false;btn.textContent="Mekan Bilgilerini Cek";
+    var d = await r.json();
+    
+    if (d.places && d.places.length) {
+      var p = d.places[0];
+      mekan = {
+        place_id: p.id || "",
+        name: p.displayName ? p.displayName.text : "",
+        addr: p.formattedAddress || "",
+        rat: p.rating || 0,
+        rev: p.userRatingCount || 0,
+        badges: {positive:[], negative:[]}
+      };
+      
+      document.getElementById("mname").textContent = mekan.name;
+      document.getElementById("mrat").textContent = mekan.rat.toFixed(1) + "★ · " + mekan.rev.toLocaleString("tr-TR") + " yorum";
+      document.getElementById("maddr").textContent = mekan.addr;
+      document.getElementById("mbadges").innerHTML = '<span style="color:#888;font-size:11px">AI analiz yapiliyor...</span>';
+      document.getElementById("sonuc").style.display = "block";
+
+      var reviews = (p.reviews || []).map(function(rv){ return rv.text ? rv.text.text : ""; }).join(" ").slice(0, 800);
+      if (reviews) {
+        var badges = await badgeAl(reviews);
+        mekan.badges = badges;
+        var bh = "";
+        (badges.positive||[]).forEach(function(b){ bh += '<span class="badge-pos">+ ' + b + '</span>'; });
+        (badges.negative||[]).forEach(function(b){ bh += '<span class="badge-neg">! ' + b + '</span>'; });
+        document.getElementById("mbadges").innerHTML = bh || "";
+      } else {
+        document.getElementById("mbadges").innerHTML = "";
+      }
+    } else {
+      mesaj("Mekan bulunamadi", "err");
+    }
+  } catch(e) {
+    mesaj("Hata: " + e.message, "err");
+  }
+  
+  btn.textContent = "Mekan Bilgilerini Cek";
+  btn.disabled = false;
 }
-function ap(){
-  if(!ft){sm("Once mekan cek","err");return;}
-  if(!sc){sm("Kategori sec","err");return;}
-  var cv=document.getElementById("rc").value;
-  var co=CITIES.find(function(c){return c.city===cv;})||{flag:"",country:""};
-  var rec=Object.assign({},ft,{cat:sc,cat_label:CATS.find(function(c){return c.k===sc;}).l,city:cv,country:co.country,flag:co.flag});
-  pd.push(rec);localStorage.setItem("np",JSON.stringify(pd));
-  document.getElementById("rs").style.display="none";
-  document.getElementById("q").value="";
-  ft=null;sc="";
-  document.querySelectorAll(".cb").forEach(function(x){x.classList.remove("on");});
-  sm(rec.name+" eklendi!","ok");rp();
+
+async function badgeAl(reviewText) {
+  try {
+    var r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": CK,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 150,
+        messages: [{
+          role: "user",
+          content: 'Restoran yorumlarindan Turkce badge cikar. SADECE JSON: {"positive":[],"negative":[]} Maks 3 pozitif 2 negatif. Max 3 kelime. Yorumlar: ' + reviewText
+        }]
+      })
+    });
+    var d = await r.json();
+    var text = d.content[0].text.trim().replace(/```json|```/g, "").trim();
+    return JSON.parse(text);
+  } catch(e) {
+    return {positive:[], negative:[]};
+  }
 }
-function rp(){
-  var el=document.getElementById("pl"),cnt=document.getElementById("pc");
-  cnt.textContent=pd.length+" mekan siteye yuklenmeyii bekliyor";
-  el.innerHTML="";
-  pd.forEach(function(r,i){
-    var d=document.createElement("div");d.className="pi";
-    d.innerHTML="<div><div class='pn'>"+r.name+"</div><div class='pm'>"+r.city+" - "+r.cat_label+" - "+r.rat.toFixed(1)+"</div></div><button class='pd' onclick='dp("+i+")'>x</button>";
+
+function ekle() {
+  if (!mekan) { mesaj("Once mekan cek", "err"); return; }
+  if (!seciliKat) { mesaj("Kategori sec", "err"); return; }
+  
+  var sv = document.getElementById("sehir").value;
+  var so = SEHIRLER.find(function(s){ return s.city === sv; }) || {flag:"", country:""};
+  
+  var kayit = Object.assign({}, mekan, {
+    cat: seciliKat,
+    cat_label: KATLAR.find(function(k){ return k.k === seciliKat; }).l,
+    city: sv,
+    country: so.country,
+    flag: so.flag
+  });
+  
+  bekleyenler.push(kayit);
+  localStorage.setItem("bk", JSON.stringify(bekleyenler));
+  
+  document.getElementById("sonuc").style.display = "none";
+  document.getElementById("q").value = "";
+  mekan = null;
+  seciliKat = "";
+  document.querySelectorAll(".catbtn").forEach(function(x){ x.classList.remove("on"); });
+  
+  mesaj("✓ " + kayit.name + " eklendi!", "ok");
+  listele();
+}
+
+function listele() {
+  var el = document.getElementById("liste");
+  var cnt = document.getElementById("cnt");
+  cnt.textContent = bekleyenler.length;
+  el.innerHTML = "";
+  bekleyenler.forEach(function(r, i) {
+    var d = document.createElement("div");
+    d.className = "pitem";
+    d.innerHTML = '<div><div style="font-size:12px;font-weight:600">' + r.name + '</div><div style="font-size:10px;color:#666;margin-top:2px">' + r.city + ' · ' + r.cat_label + ' · ' + r.rat.toFixed(1) + '★</div></div><button class="pdel" onclick="sil(' + i + ')">×</button>';
     el.appendChild(d);
   });
 }
-function dp(i){pd.splice(i,1);localStorage.setItem("np",JSON.stringify(pd));rp();}
-async function ps(){
-  if(!pd.length){sm("Eklenecek mekan yok","err");return;}
-  var btn=document.querySelector(".btnp");btn.disabled=true;btn.textContent="Yukleniyor...";
-  try{
-    var r=await fetch("https://api.github.com/repos/"+GR+"/contents/index.html",{headers:{"Authorization":"token "+GT}});
-    var fd=await r.json();var sha=fd.sha;
-    var cur=decodeURIComponent(escape(atob(fd.content.replace(/
-/g,""))));
-    var m=cur.match(/var ALL=(\[[\s\S]*?\]);/);
-    if(!m){sm("Veri bulunamadi","err");btn.disabled=false;btn.textContent="Siteye Yukle";return;}
-    var nd=JSON.parse(m[1]).concat(pd);
-    var nh=cur.replace(/var ALL=\[[\s\S]*?\];/,"var ALL="+JSON.stringify(nd)+";");
-    var enc=btoa(unescape(encodeURIComponent(nh)));
-    var rsp=await fetch("https://api.github.com/repos/"+GR+"/contents/index.html",{
-      method:"PUT",
-      headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},
-      body:JSON.stringify({message:"add "+pd.length+" places",sha:sha,content:enc})
-    });
-    var rs=await rsp.json();
-    if(rs.content){pd=[];localStorage.setItem("np","[]");rp();sm("Yuklendi! Sitede "+nd.length+" mekan var.","ok");}
-    else{sm("Hata: "+JSON.stringify(rs),"err");}
-  }catch(e){sm("Hata: "+e.message,"err");}
-  btn.disabled=false;btn.textContent="Siteye Yukle";
+
+function sil(i) {
+  bekleyenler.splice(i, 1);
+  localStorage.setItem("bk", JSON.stringify(bekleyenler));
+  listele();
 }
-function sm(t,c){var e=document.getElementById("msg");e.textContent=t;e.className="msg "+c;e.style.display="block";setTimeout(function(){e.style.display="none";},4000);}
-document.getElementById("pw").addEventListener("keydown",function(e){if(e.key==="Enter")chk();});
+
+async function yukle() {
+  if (!bekleyenler.length) { mesaj("Eklenecek mekan yok", "err"); return; }
+  
+  var btn = event.target;
+  btn.textContent = "Yukleniyor...";
+  btn.disabled = true;
+  
+  try {
+    var r = await fetch("https://api.github.com/repos/" + GR + "/contents/index.html", {
+      headers: {"Authorization": "token " + GT}
+    });
+    var fd = await r.json();
+    var sha = fd.sha;
+    var cur = decodeURIComponent(escape(atob(fd.content.replace(/\n/g, ""))));
+    
+    var m = cur.match(/var ALL=(\[[\s\S]*?\]);/);
+    if (!m) { mesaj("Veri bulunamadi", "err"); btn.disabled=false; btn.textContent="Siteye Yukle"; return; }
+    
+    var mbd = cur.match(/var BADGES=(\{[\s\S]*?\});/);
+    var existingBadges = {};
+    if (mbd) { try { existingBadges = JSON.parse(mbd[1]); } catch(e) {} }
+    
+    bekleyenler.forEach(function(p) {
+      if (p.badges && p.place_id) {
+        existingBadges[p.place_id] = p.badges;
+      }
+    });
+    
+    var temiz = bekleyenler.map(function(p) {
+      var r = Object.assign({}, p);
+      delete r.badges;
+      return r;
+    });
+    
+    var nd = JSON.parse(m[1]).concat(temiz);
+    var nh = cur.replace(/var ALL=\[[\s\S]*?\];/, "var ALL=" + JSON.stringify(nd) + ";");
+    nh = nh.replace(/var BADGES=\{[\s\S]*?\};/, "var BADGES=" + JSON.stringify(existingBadges) + ";");
+    
+    var enc = btoa(unescape(encodeURIComponent(nh)));
+    var rsp = await fetch("https://api.github.com/repos/" + GR + "/contents/index.html", {
+      method: "PUT",
+      headers: {"Authorization": "token " + GT, "Content-Type": "application/json"},
+      body: JSON.stringify({message: "add " + bekleyenler.length + " places", sha: sha, content: enc})
+    });
+    var rs = await rsp.json();
+    
+    if (rs.content) {
+      bekleyenler = [];
+      localStorage.setItem("bk", "[]");
+      listele();
+      mesaj("✓ Yuklendi! Sitede " + nd.length + " mekan var.", "ok");
+    } else {
+      mesaj("Hata: " + JSON.stringify(rs), "err");
+    }
+  } catch(e) {
+    mesaj("Hata: " + e.message, "err");
+  }
+  
+  btn.textContent = "Siteye Yukle";
+  btn.disabled = false;
+}
+
+function mesaj(t, c) {
+  var e = document.getElementById("msg");
+  e.textContent = t;
+  e.className = "msg " + c;
+  e.style.display = "block";
+  setTimeout(function(){ e.style.display = "none"; }, 4000);
+}
+
+document.getElementById("pw").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") giris();
+});
 </script>
 </body>
 </html>
