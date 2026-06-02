@@ -274,15 +274,29 @@ async function yukle() {
     var r = await fetch("https://api.github.com/repos/"+GR+"/contents/index.html",{headers:{"Authorization":"token "+GT}});
     var fd = await r.json(); var sha = fd.sha;
     var cur = decodeURIComponent(escape(atob(fd.content.replace(/\n/g,""))));
-    var m = cur.match(/var ALL=(\[[\s\S]*?\]);/);
-    if (!m) { mesaj("Veri bulunamadi","err"); btn.disabled=false; btn.textContent="Siteye Yukle"; return; }
-    var mbd = cur.match(/var BADGES=(\{[\s\S]*?\});/);
-    var eb = {}; if (mbd) { try { eb = JSON.parse(mbd[1]); } catch(e) {} }
+    
+    var allStart = cur.indexOf("var ALL=[");
+    var allEnd = cur.indexOf("];", allStart) + 2;
+    var badgesStart = cur.indexOf("var BADGES={");
+    var badgesEnd = cur.indexOf("};", badgesStart) + 2;
+    
+    if (allStart < 0) { mesaj("Veri bulunamadi","err"); btn.disabled=false; btn.textContent="Siteye Yukle"; return; }
+    
+    var existingData = JSON.parse(cur.slice(allStart+9, allEnd-1));
+    var eb = {};
+    if (badgesStart > 0) { try { eb = JSON.parse(cur.slice(badgesStart+12, badgesEnd-1)); } catch(e) {} }
+    
     bekleyenler.forEach(function(p){ if(p.badges&&p.place_id){ eb[p.place_id]=p.badges; } });
     var temiz = bekleyenler.map(function(p){ var r=Object.assign({},p); delete r.badges; return r; });
-    var nd = JSON.parse(m[1]).concat(temiz);
-    var nh = cur.replace(/var ALL=\[[\s\S]*?\];/,"var ALL="+JSON.stringify(nd)+";");
-    nh = nh.replace(/var BADGES=\{[\s\S]*?\};/,"var BADGES="+JSON.stringify(eb)+";");
+    var nd = existingData.concat(temiz);
+    
+    var nh = cur.slice(0, allStart) + "var ALL=" + JSON.stringify(nd) + ";" + cur.slice(allEnd);
+    if (badgesStart > 0) {
+      var newBadgesStart = nh.indexOf("var BADGES={");
+      var newBadgesEnd = nh.indexOf("};", newBadgesStart) + 2;
+      nh = nh.slice(0, newBadgesStart) + "var BADGES=" + JSON.stringify(eb) + ";" + nh.slice(newBadgesEnd);
+    }
+    
     var enc = btoa(unescape(encodeURIComponent(nh)));
     var rsp = await fetch("https://api.github.com/repos/"+GR+"/contents/index.html",{method:"PUT",headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},body:JSON.stringify({message:"add "+bekleyenler.length+" places",sha:sha,content:enc})});
     var rs = await rsp.json();
@@ -294,6 +308,7 @@ async function yukle() {
   } catch(e) { mesaj("Hata: "+e.message,"err"); }
   btn.textContent = "Siteye Yukle"; btn.disabled = false;
 }
+
 
 function mesaj(t,c) {
   var e = document.getElementById("msg");
