@@ -290,12 +290,18 @@ async function yukle() {
     // Mevcut places.json'u cek
     var r1 = await fetch("https://api.github.com/repos/"+GR+"/contents/places.json",{headers:{"Authorization":"token "+GT}});
     var f1 = await r1.json();
-    var places = JSON.parse(atob(f1.content.replace(/\n/g,"")));
+    var raw1 = atob(f1.content.replace(/\n/g,""));
+    var bytes1 = new Uint8Array(raw1.length);
+    for(var i=0;i<raw1.length;i++) bytes1[i]=raw1.charCodeAt(i);
+    var places = JSON.parse(new TextDecoder("utf-8").decode(bytes1));
     
     // Mevcut badges.json'u cek
     var r2 = await fetch("https://api.github.com/repos/"+GR+"/contents/badges.json",{headers:{"Authorization":"token "+GT}});
     var f2 = await r2.json();
-    var badges = JSON.parse(atob(f2.content.replace(/\n/g,"")));
+    var raw2 = atob(f2.content.replace(/\n/g,""));
+    var bytes2 = new Uint8Array(raw2.length);
+    for(var i=0;i<raw2.length;i++) bytes2[i]=raw2.charCodeAt(i);
+    var badges = JSON.parse(new TextDecoder("utf-8").decode(bytes2));
     
     // Yeni mekanları ekle
     var temiz = bekleyenler.map(function(p){ var r=Object.assign({},p); delete r.badges; return r; });
