@@ -93,6 +93,15 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
 
 <script>
 var SIFRE = "neyeriz2025";
+// Kayitli token'lari yukle
+window.onload = function() {
+  var sgt = localStorage.getItem("ngt");
+  var sak = localStorage.getItem("nak");
+  var sck = localStorage.getItem("nck");
+  if (sgt) document.getElementById("gt").value = sgt;
+  if (sak) document.getElementById("ak").value = sak;
+  if (sck) document.getElementById("ck").value = sck;
+};
 var GT = "", AK = "", CK = "";
 var GR = "sermetbaykal/places";
 var seciliKat = "", mekan = null;
@@ -131,6 +140,9 @@ function giris() {
   AK = document.getElementById("ak").value.trim();
   CK = document.getElementById("ck").value.trim();
   if (!GT || !AK) { alert("GitHub Token ve Google API Key zorunlu!"); return; }
+  localStorage.setItem("ngt", GT);
+  localStorage.setItem("nak", AK);
+  localStorage.setItem("nck", CK);
   document.getElementById("lock").style.display = "none";
   document.getElementById("app").style.display = "block";
   baslat();
