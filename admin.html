@@ -208,13 +208,24 @@ async function ara() {
   try {
     var r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
-      headers: {"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress,places.reviews"},
+      headers: {"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress,places.reviews,places.addressComponents"},
       body: JSON.stringify({textQuery:q,maxResultCount:1,languageCode:"en"})
     });
     var d = await r.json();
     if (d.places && d.places.length) {
       var p = d.places[0];
-      mekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]}};
+      var comps = p.addressComponents || [];
+      var district="",city="",country="",countryCode="";
+      comps.forEach(function(c){
+        if(c.types.indexOf("administrative_area_level_2")>=0) district=c.longText;
+        else if(c.types.indexOf("administrative_area_level_1")>=0) city=c.longText;
+        else if(c.types.indexOf("country")>=0){country=c.longText;countryCode=c.shortText;}
+      });
+      var displayCity = district || city || "";
+      var flag = countryCode ? countryCode.split("").map(function(c){return String.fromCodePoint(c.charCodeAt(0)+127397);}).join("") : "🌍";
+      if(document.getElementById("sehir-txt")) document.getElementById("sehir-txt").value = displayCity;
+      if(document.getElementById("ulke-txt")) document.getElementById("ulke-txt").value = country;
+      mekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]},city:displayCity,country:country,flag:flag};
       document.getElementById("mname").textContent = mekan.name;
       document.getElementById("mrat").textContent = mekan.rat.toFixed(1)+"★ · "+mekan.rev.toLocaleString("tr-TR")+" yorum";
       document.getElementById("maddr").textContent = mekan.addr;
