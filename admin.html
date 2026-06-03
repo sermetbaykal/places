@@ -205,11 +205,13 @@ function baslat() {
     ch.appendChild(b);
   });
   var sel = document.getElementById("sehir");
-  if(sel){ sel.innerHTML = '<option value="">-- Listeden sec --</option><option value="__yeni__">+ Yeni sehir ekle...</option>';
-  SEHIRLER.forEach(function(s) {
-    var o = document.createElement("option");
-    o.value = s.city; o.textContent = s.city; sel.appendChild(o);
-  });
+  if(sel) {
+    sel.innerHTML = '<option value="">-- Listeden sec --</option><option value="__yeni__">+ Yeni sehir ekle...</option>';
+    SEHIRLER.forEach(function(s) {
+      var o = document.createElement("option");
+      o.value = s.city; o.textContent = s.city; sel.appendChild(o);
+    });
+  }
   istatistik();
   listele();
   loadMekanlar();
