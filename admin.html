@@ -128,6 +128,23 @@ var SEHIRLER = [
   {city:"Amsterdam",country:"Hollanda",flag:"NL"},{city:"Cape Town",country:"G.Afrika",flag:"ZA"}
 ];
 
+function simpleEncrypt(text, key) {
+  var result = "";
+  for (var i = 0; i < text.length; i++) {
+    result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+  }
+  return btoa(result);
+}
+function simpleDecrypt(encoded, key) {
+  try {
+    var text = atob(encoded);
+    var result = "";
+    for (var i = 0; i < text.length; i++) {
+      result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+    }
+    return result;
+  } catch(e) { return ""; }
+}
 function giris() {
   var pw = document.getElementById("pw").value;
   if (pw !== SIFRE) {
@@ -136,13 +153,30 @@ function giris() {
     setTimeout(function(){ h.style.display = "none"; }, 2000);
     return;
   }
+  // Onceden kaydedilmis sifreli tokenlar var mi?
+  var savedGT = localStorage.getItem("enc_ngt");
+  var savedAK = localStorage.getItem("enc_nak");
+  if (savedGT && savedAK) {
+    GT = simpleDecrypt(savedGT, pw);
+    AK = simpleDecrypt(savedAK, pw);
+    var savedCK = localStorage.getItem("enc_nck");
+    if (savedCK) CK = simpleDecrypt(savedCK, pw);
+    if (GT && AK) {
+      document.getElementById("lock").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      baslat();
+      return;
+    }
+  }
   GT = document.getElementById("gt").value.trim();
   AK = document.getElementById("ak").value.trim();
   CK = document.getElementById("ck").value.trim();
   if (!GT || !AK) { alert("GitHub Token ve Google API Key zorunlu!"); return; }
-  localStorage.setItem("ngt", GT);
-  localStorage.setItem("nak", AK);
-  localStorage.setItem("nck", CK);
+  localStorage.setItem("enc_ngt", simpleEncrypt(GT, pw));
+  localStorage.setItem("enc_nak", simpleEncrypt(AK, pw));
+  localStorage.setItem("enc_nck", simpleEncrypt(CK, pw));
+  // Eski kayitlari temizle
+  localStorage.removeItem("ngt"); localStorage.removeItem("nak"); localStorage.removeItem("nck");
   document.getElementById("lock").style.display = "none";
   document.getElementById("app").style.display = "block";
   baslat();
