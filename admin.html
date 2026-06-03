@@ -263,9 +263,12 @@ async function badgeAl(reviewText) {
 function ekle() {
   if (!mekan) { mesaj("Once mekan cek","err"); return; }
   if (!seciliKat) { mesaj("Kategori sec","err"); return; }
-  var sv = document.getElementById("sehir").value;
-  var so = SEHIRLER.find(function(s){return s.city===sv;})||{flag:"",country:""};
-  var kayit = Object.assign({},mekan,{cat:seciliKat,cat_label:KATLAR.find(function(k){return k.k===seciliKat;}).l,city:sv,country:so.country,flag:so.flag});
+  var sehirEl = document.getElementById("sehir-txt");
+  var ulkeEl = document.getElementById("ulke-txt");
+  var sv = (sehirEl && sehirEl.value.trim()) ? sehirEl.value.trim() : (mekan.city || "");
+  var ulke = (ulkeEl && ulkeEl.value.trim()) ? ulkeEl.value.trim() : (mekan.country || sv);
+  var flag = mekan.flag || "\uD83C\uDF0D";
+  var kayit = Object.assign({},mekan,{cat:seciliKat,cat_label:KATLAR.find(function(k){return k.k===seciliKat;}).l,city:sv,country:ulke,flag:flag});
   bekleyenler.push(kayit);
   localStorage.setItem("bk",JSON.stringify(bekleyenler));
   document.getElementById("sonuc").style.display = "none";
