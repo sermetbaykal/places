@@ -65,6 +65,8 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
     </div>
   </div>
 
+  <div class="card"><h2>Onay Bekleyenler <span id="sug-cnt" style="font-size:13px;color:#C9A84C"></span></h2><div id="sug-list"><div style="font-size:12px;color:#666">Yukleniyor...</div></div><button onclick="loadSuggestions()" style="width:100%;padding:8px;background:transparent;color:#888;border:1px solid #444;border-radius:8px;cursor:pointer;margin-top:8px;font-size:12px">Yenile</button></div>
+
   <div class="card">
     <h2>Mekan Ekle</h2>
     <label>Google Maps Linki veya Mekan Adi</label>
@@ -178,6 +180,7 @@ function baslat() {
   });
   istatistik();
   listele();
+  loadSuggestions();
   loadMekanlar();
 }
 
@@ -549,6 +552,62 @@ async function yukle_OLD() {
   btn.textContent = "Siteye Yukle"; btn.disabled = false;
 }
 
+
+
+async function loadSuggestions() {
+  var el = document.getElementById("sug-list");
+  var cnt = document.getElementById("sug-cnt");
+  if(!el) return;
+  el.innerHTML = "<div style=\"font-size:12px;color:#666\">Yukleniyor...</div>";
+  try {
+    var resp = await fetch("https://neyeriz-proxy.sermetbaykal.workers.dev/suggestions");
+    var items = await resp.json();
+    var pending = items.filter(function(i){ return i.status === "pending"; });
+    cnt.textContent = pending.length ? "(" + pending.length + ")" : "";
+    if (!pending.length) {
+      el.innerHTML = "<div style=\"font-size:12px;color:#666\">Onay bekleyen oneri yok</div>";
+      return;
+    }
+    var out = "";
+    pending.sort(function(a,b){ return b.ts.localeCompare(a.ts); }).forEach(function(item) {
+      var safe = encodeURIComponent(JSON.stringify(item));
+      out += "<div style=\"background:#111;border-radius:8px;padding:10px;margin-bottom:6px\">";
+      out += "<div style=\"font-size:12px;font-weight:600;margin-bottom:3px\">" + item.name + "</div>";
+      out += "<div style=\"font-size:10px;color:#888;margin-bottom:6px\">" + item.addr + " - " + item.rat.toFixed(1) + " yildiz</div>";
+      out += "<div style=\"display:flex;gap:6px\">";
+      out += "<button data-item=\"" + safe + "\" onclick=\"approveSug(this)\" style=\"flex:1;padding:5px;background:#1A7A2E;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px\">Onayla</button>";
+      out += "<button data-id=\"" + item.id + "\" onclick=\"rejectSug(this)\" style=\"flex:1;padding:5px;background:transparent;color:#F09080;border:1px solid #C4391A;border-radius:6px;cursor:pointer;font-size:11px\">Reddet</button>";
+      out += "</div></div>";
+    });
+    el.innerHTML = out;
+  } catch(e) {
+    el.innerHTML = "<div style=\"font-size:12px;color:#F09080\">Hata: " + e.message + "</div>";
+  }
+}
+
+async function approveSug(btn) {
+  var item = JSON.parse(decodeURIComponent(btn.getAttribute("data-item")));
+  mekan = {place_id: item.place_id||"", name: item.name, addr: item.addr, rat: item.rat, rev: item.rev||0, badges: {positive:[], negative:[]}};
+  document.getElementById("q").value = item.name;
+  document.getElementById("mname").textContent = item.name;
+  document.getElementById("mrat").textContent = item.rat.toFixed(1) + " yildiz";
+  document.getElementById("maddr").textContent = item.addr;
+  document.getElementById("mbadges").innerHTML = "";
+  document.getElementById("sonuc").style.display = "block";
+  await rejectSugById(item.id);
+  mesaj("Onaylandi! Kategori sec ve listeye ekle.", "ok");
+}
+
+async function rejectSug(btn) {
+  await rejectSugById(btn.getAttribute("data-id"));
+}
+
+async function rejectSugById(id) {
+  try {
+    await fetch("https://neyeriz-proxy.sermetbaykal.workers.dev/suggestions/" + id, {method: "DELETE"});
+    loadSuggestions();
+  } catch(e) {}
+}
 
 function mesaj(t,c) {
   var e = document.getElementById("msg");
