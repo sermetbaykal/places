@@ -79,6 +79,10 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
       <div id="mbadges" style="margin-bottom:10px"></div>
       <label>Kategori</label>
       <div class="cats" id="cats"></div>
+      <label>Sehir / Ilce</label>
+      <input type="text" id="sehir-txt" placeholder="Ornek: Kadikoy, Amasra, Paris..." style="margin-bottom:4px">
+      <label>Ulke</label>
+      <input type="text" id="ulke-txt" placeholder="Ornek: Turkiye, Fransa...">
       <label>Sehir</label>
       <select id="sehir"></select>
       <button class="green" onclick="ekle()" style="margin-top:8px">Listeye Ekle</button>
@@ -589,6 +593,8 @@ async function approveSug(btn) {
   var item = JSON.parse(decodeURIComponent(btn.getAttribute("data-item")));
   mekan = {place_id: item.place_id||"", name: item.name, addr: item.addr, rat: item.rat, rev: item.rev||0, badges: {positive:[], negative:[]}};
   document.getElementById("q").value = item.name;
+  if(document.getElementById("sehir-txt")) document.getElementById("sehir-txt").value = item.city || "";
+  if(document.getElementById("ulke-txt")) document.getElementById("ulke-txt").value = item.country || "";
   document.getElementById("mname").textContent = item.name;
   document.getElementById("mrat").textContent = item.rat.toFixed(1) + " yildiz";
   document.getElementById("maddr").textContent = item.addr;
