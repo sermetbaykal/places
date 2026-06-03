@@ -184,7 +184,11 @@ async function istatistik() {
   try {
     var r = await fetch("https://api.github.com/repos/"+GR+"/contents/index.html", {headers:{"Authorization":"token "+GT}});
     var fd = await r.json();
-    var cur = decodeURIComponent(escape(atob(fd.content.replace(/\n/g,""))));
+    var raw = fd.content.replace(/\n/g,"");
+    var binary = atob(raw);
+    var bytes = new Uint8Array(binary.length);
+    for(var i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+    var cur = new TextDecoder("utf-8").decode(bytes);
     var m = cur.match(/var ALL=(\[[\s\S]*?\]);/);
     if (m) {
       var data = JSON.parse(m[1]);
@@ -285,7 +289,11 @@ async function yukle() {
   try {
     var r = await fetch("https://api.github.com/repos/"+GR+"/contents/index.html",{headers:{"Authorization":"token "+GT}});
     var fd = await r.json(); var sha = fd.sha;
-    var cur = decodeURIComponent(escape(atob(fd.content.replace(/\n/g,""))));
+    var raw = fd.content.replace(/\n/g,"");
+    var binary = atob(raw);
+    var bytes = new Uint8Array(binary.length);
+    for(var i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+    var cur = new TextDecoder("utf-8").decode(bytes);
     
     var allStart = cur.indexOf("var ALL=[");
     var allEnd = cur.indexOf("];", allStart) + 2;
