@@ -74,14 +74,11 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
       <div id="mname" style="font-size:15px;font-weight:700;margin-bottom:4px"></div>
       <div id="mrat" style="color:#C9A84C;font-size:17px;font-weight:800;margin-bottom:3px"></div>
       <div id="maddr" style="font-size:11px;color:#666;margin-bottom:8px"></div>
+      <div id="loc-info" style="font-size:12px;color:#C9A84C;margin-bottom:6px;font-weight:600"></div>
       <div id="mbadges" style="margin-bottom:10px"></div>
       <label>Kategori</label>
       <div class="cats" id="cats"></div>
-      <label>Sehir</label>
-      <select id="sehir" onchange="sehirSec(this.value)" style="margin-bottom:6px"></select>
-      <input type="text" id="sehir-custom" placeholder="Yeni sehir adi..." style="margin-top:4px;display:none">
-      <input type="text" id="country-custom" placeholder="Ulke adi..." style="margin-top:4px;display:none">
-      <input type="text" id="flag-custom" placeholder="Flag emoji (orn: 🇩🇪)" style="margin-top:4px;display:none">
+      <div style="font-size:10px;color:#666;margin-bottom:8px">📍 Konum bilgisi Google Maps'ten otomatik gelir</div>
       <button class="green" onclick="ekle()" style="margin-top:8px">Listeye Ekle</button>
     </div>
     <div class="msg" id="msg"></div>
@@ -238,16 +235,29 @@ async function ara() {
   try {
     var r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
-      headers: {"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress,places.reviews"},
+      headers: {"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress,places.reviews,places.addressComponents"},
       body: JSON.stringify({textQuery:q,maxResultCount:1,languageCode:"en"})
     });
     var d = await r.json();
     if (d.places && d.places.length) {
       var p = d.places[0];
-      mekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]}};
+      // Adres bilesenleri
+      var comps = p.addressComponents || [];
+      var district = "", city = "", country = "", countryCode = "";
+      comps.forEach(function(c){
+        if(c.types.indexOf("administrative_area_level_2")>=0) district=c.longText;
+        else if(c.types.indexOf("administrative_area_level_1")>=0) city=c.longText;
+        else if(c.types.indexOf("country")>=0){ country=c.longText; countryCode=c.shortText; }
+      });
+      var displayCity = district || city || "";
+      // Flag emoji from country code
+      var flag = countryCode ? countryCode.split("").map(function(c){return String.fromCodePoint(c.charCodeAt(0)+127397);}).join("") : "🌍";
+      mekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]},city:displayCity,country:country,flag:flag,parent_city:city};
       document.getElementById("mname").textContent = mekan.name;
       document.getElementById("mrat").textContent = mekan.rat.toFixed(1)+"★ · "+mekan.rev.toLocaleString("tr-TR")+" yorum";
       document.getElementById("maddr").textContent = mekan.addr;
+      var locInfo = document.getElementById("loc-info");
+      if(locInfo) locInfo.textContent = mekan.flag+" "+mekan.city+(mekan.parent_city&&mekan.parent_city!==mekan.city?", "+mekan.parent_city:"")+" / "+mekan.country;
       document.getElementById("mbadges").innerHTML = '<span style="color:#666;font-size:11px">AI analiz yapiliyor...</span>';
       document.getElementById("sonuc").style.display = "block";
       var reviews = (p.reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);
@@ -282,10 +292,8 @@ async function badgeAl(reviewText) {
 function ekle() {
   if (!mekan) { mesaj("Once mekan cek","err"); return; }
   if (!seciliKat) { mesaj("Kategori sec","err"); return; }
-  var sv = document.getElementById("sehir").value.trim() || document.getElementById("sehir-custom").value.trim();
-  var cov = document.getElementById("country-custom").value.trim();
-  var fov = document.getElementById("flag-custom").value.trim();
-  var so = SEHIRLER.find(function(s){return s.city===sv;})||{flag:fov||"🌍",country:cov||sv};
+  var sv = mekan.city || document.getElementById("sehir").value.trim();
+  var so = {flag: mekan.flag||"🌍", country: mekan.country||sv};
   var kayit = Object.assign({},mekan,{cat:seciliKat,cat_label:KATLAR.find(function(k){return k.k===seciliKat;}).l,city:sv,country:so.country,flag:so.flag});
   bekleyenler.push(kayit);
   localStorage.setItem("bk",JSON.stringify(bekleyenler));
