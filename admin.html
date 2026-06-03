@@ -235,7 +235,7 @@ async function ara() {
 
 async function badgeAl(reviewText) {
   try {
-    var r = await fetch("https://api.anthropic.com/v1/messages", {
+    var r = await fetch("https://neyeriz-proxy.sermetbaykal.workers.dev", {
       method: "POST",
       headers: {"Content-Type":"application/json","x-api-key":CK,"anthropic-version":"2023-06-01"},
       body: JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:150,messages:[{role:"user",content:'Restoran yorumlarindan Turkce badge cikar. SADECE JSON: {"positive":[],"negative":[]} Maks 3 pozitif 2 negatif. Max 3 kelime. Yorumlar: '+reviewText}]})
