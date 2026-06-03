@@ -78,7 +78,12 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
       <label>Kategori</label>
       <div class="cats" id="cats"></div>
       <label>Sehir</label>
-      <select id="sehir"></select>
+      <select id="sehir" onchange="sehirSec()">
+        <option value="">-- Listeden sec --</option>
+      </select>
+      <input type="text" id="sehir-custom" placeholder="Veya yeni sehir yaz..." style="margin-top:6px;display:none">
+      <input type="text" id="country-custom" placeholder="Ulke adi..." style="margin-top:4px;display:none">
+      <input type="text" id="flag-custom" placeholder="Flag emoji (orn: 🇩🇪)" style="margin-top:4px;display:none">
       <button class="green" onclick="ekle()" style="margin-top:8px">Listeye Ekle</button>
     </div>
     <div class="msg" id="msg"></div>
@@ -279,8 +284,10 @@ async function badgeAl(reviewText) {
 function ekle() {
   if (!mekan) { mesaj("Once mekan cek","err"); return; }
   if (!seciliKat) { mesaj("Kategori sec","err"); return; }
-  var sv = document.getElementById("sehir").value;
-  var so = SEHIRLER.find(function(s){return s.city===sv;})||{flag:"",country:""};
+  var sv = document.getElementById("sehir").value.trim() || document.getElementById("sehir-custom").value.trim();
+  var cov = document.getElementById("country-custom").value.trim();
+  var fov = document.getElementById("flag-custom").value.trim();
+  var so = SEHIRLER.find(function(s){return s.city===sv;})||{flag:fov||"🌍",country:cov||sv};
   var kayit = Object.assign({},mekan,{cat:seciliKat,cat_label:KATLAR.find(function(k){return k.k===seciliKat;}).l,city:sv,country:so.country,flag:so.flag});
   bekleyenler.push(kayit);
   localStorage.setItem("bk",JSON.stringify(bekleyenler));
@@ -451,6 +458,22 @@ async function saveToGithub() {
     var rs = await rsp.json();
     if (!rs.content) { mesaj("Hata: "+JSON.stringify(rs),"err"); }
   } catch(e) { mesaj("Hata: "+e.message,"err"); }
+}
+
+function sehirSec() {
+  var val = document.getElementById("sehir").value;
+  var custom = document.getElementById("sehir-custom");
+  var country = document.getElementById("country-custom");
+  var flag = document.getElementById("flag-custom");
+  if (val === "") {
+    custom.style.display = "block";
+    country.style.display = "block";
+    flag.style.display = "block";
+  } else {
+    custom.style.display = "none";
+    country.style.display = "none";
+    flag.style.display = "none";
+  }
 }
 
 function listele() {
