@@ -184,12 +184,10 @@ async function istatistik() {
   try {
     var r = await fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/places.json?t="+Date.now());
     var data = await r.json();
-    if (data && data.length) {
-      document.getElementById("st1").textContent = data.length;
-      document.getElementById("st2").textContent = new Set(data.map(function(r){return r.city;})).size;
-      var avg = data.reduce(function(s,r){return s+r.rat;},0)/data.length;
-      document.getElementById("st3").textContent = avg.toFixed(2);
-    }
+    document.getElementById("st1").textContent = data.length;
+    document.getElementById("st2").textContent = new Set(data.map(function(d){return d.city;})).size;
+    var avg = data.reduce(function(s,d){return s+d.rat;},0)/data.length;
+    document.getElementById("st3").textContent = avg.toFixed(2);
   } catch(e) { console.log("istatistik hata:", e); }
 }
 
