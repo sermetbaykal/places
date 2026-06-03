@@ -85,6 +85,12 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
   </div>
 
   <div class="card">
+    <h2>Mevcut Mekanlar</h2>
+    <input type="text" id="search-existing" placeholder="Mekan ara..." oninput="filterMekanlar()" style="margin-bottom:10px">
+    <div id="existing-list" style="max-height:400px;overflow-y:auto"></div>
+  </div>
+
+  <div class="card">
     <h2>Bekleyen Mekanlar (<span id="cnt">0</span>)</h2>
     <div id="liste"></div>
     <button class="outline" onclick="yukle()">Siteye Yukle</button>
@@ -178,6 +184,7 @@ function baslat() {
   });
   istatistik();
   listele();
+  loadMekanlar();
 }
 
 async function istatistik() {
@@ -255,6 +262,91 @@ function ekle() {
   document.querySelectorAll(".catbtn").forEach(function(x){x.classList.remove("on");});
   mesaj("✓ "+kayit.name+" eklendi!","ok");
   listele();
+}
+
+var mekanlarData = [];
+
+async function loadMekanlar() {
+  try {
+    var r = await fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/places.json?t="+Date.now());
+    mekanlarData = await r.json();
+    filterMekanlar();
+  } catch(e) { console.log("Mekanlar yuklenemedi:", e); }
+}
+
+function filterMekanlar() {
+  var q = document.getElementById("search-existing").value.toLowerCase();
+  var filtered = mekanlarData.filter(function(m){ return (m.name+m.city+m.cat_label).toLowerCase().includes(q); });
+  var el = document.getElementById("existing-list");
+  if (!filtered.length) { el.innerHTML = "<div style='color:#666;font-size:12px;padding:10px'>Mekan bulunamadi</div>"; return; }
+  el.innerHTML = filtered.slice(0,50).map(function(m,i){
+    var realIdx = mekanlarData.indexOf(m);
+    return "<div style='background:#111;border-radius:8px;padding:9px 11px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center'>"+
+      "<div><div style='font-size:12px;font-weight:600'>"+m.name+"</div><div style='font-size:10px;color:#666;margin-top:1px'>"+m.city+" · "+(m.cat_label||m.cat)+"</div></div>"+
+      "<div style='display:flex;gap:6px'>"+
+      "<button onclick='openEdit("+realIdx+")' style='padding:4px 8px;background:#C9A84C22;color:#C9A84C;border:1px solid #C9A84C44;border-radius:6px;cursor:pointer;font-size:11px'>Duzenle</button>"+
+      "<button onclick='silMekan("+realIdx+")' style='padding:4px 8px;background:#C4391A22;color:#F09080;border:1px solid #C4391A44;border-radius:6px;cursor:pointer;font-size:11px'>Sil</button>"+
+      "</div></div>";
+  }).join("");
+}
+
+function openEdit(idx) {
+  var m = mekanlarData[idx];
+  document.getElementById("edit-name").value = m.name;
+  document.getElementById("edit-addr").value = m.addr || "";
+  document.getElementById("edit-idx").value = idx;
+  var catSel = document.getElementById("edit-cat");
+  catSel.innerHTML = KATLAR.map(function(k){ return "<option value='"+k.k+"'"+(k.k===m.cat?" selected":"")+">"+k.l+"</option>"; }).join("");
+  var citySel = document.getElementById("edit-city");
+  citySel.innerHTML = SEHIRLER.map(function(s){ return "<option value='"+s.city+"'"+(s.city===m.city?" selected":"")+">"+s.city+"</option>"; }).join("");
+  var modal = document.getElementById("edit-modal");
+  modal.style.display = "flex";
+}
+
+function closeEdit() {
+  document.getElementById("edit-modal").style.display = "none";
+}
+
+async function saveEdit() {
+  var idx = parseInt(document.getElementById("edit-idx").value);
+  var catKey = document.getElementById("edit-cat").value;
+  var cityVal = document.getElementById("edit-city").value;
+  var so = SEHIRLER.find(function(s){return s.city===cityVal;})||{flag:"",country:""};
+  mekanlarData[idx].name = document.getElementById("edit-name").value;
+  mekanlarData[idx].addr = document.getElementById("edit-addr").value;
+  mekanlarData[idx].cat = catKey;
+  mekanlarData[idx].cat_label = KATLAR.find(function(k){return k.k===catKey;}).l;
+  mekanlarData[idx].city = cityVal;
+  mekanlarData[idx].country = so.country;
+  mekanlarData[idx].flag = so.flag;
+  closeEdit();
+  await saveToGithub();
+  filterMekanlar();
+  mesaj("Mekan guncellendi!","ok");
+}
+
+async function silMekan(idx) {
+  if (!confirm(mekanlarData[idx].name+" silinecek. Emin misiniz?")) return;
+  mekanlarData.splice(idx, 1);
+  await saveToGithub();
+  filterMekanlar();
+  istatistik();
+  mesaj("Mekan silindi!","ok");
+}
+
+async function saveToGithub() {
+  try {
+    var r = await fetch("https://api.github.com/repos/"+GR+"/contents/places.json",{headers:{"Authorization":"token "+GT}});
+    var fd = await r.json();
+    var enc = btoa(unescape(encodeURIComponent(JSON.stringify(mekanlarData))));
+    var rsp = await fetch("https://api.github.com/repos/"+GR+"/contents/places.json",{
+      method:"PUT",
+      headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},
+      body:JSON.stringify({message:"update places",sha:fd.sha,content:enc})
+    });
+    var rs = await rsp.json();
+    if (!rs.content) { mesaj("Hata: "+JSON.stringify(rs),"err"); }
+  } catch(e) { mesaj("Hata: "+e.message,"err"); }
 }
 
 function listele() {
@@ -396,5 +488,24 @@ function mesaj(t,c) {
 
 document.getElementById("pw").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("gt").focus();});
 </script>
+
+<div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#222;border-radius:12px;padding:24px;width:100%;max-width:480px">
+    <h2 style="color:#C9A84C;margin-bottom:16px">Mekan Duzenle</h2>
+    <label>Mekan Adi</label>
+    <input type="text" id="edit-name">
+    <label>Adres</label>
+    <input type="text" id="edit-addr">
+    <label>Kategori</label>
+    <select id="edit-cat"></select>
+    <label>Sehir</label>
+    <select id="edit-city"></select>
+    <input type="hidden" id="edit-idx">
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button onclick="saveEdit()" style="flex:1;padding:10px;background:#C9A84C;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer">Kaydet</button>
+      <button onclick="closeEdit()" style="flex:1;padding:10px;background:transparent;color:#888;border:1px solid #444;border-radius:8px;cursor:pointer">Iptal</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
