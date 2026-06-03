@@ -566,6 +566,7 @@ async function loadSuggestions() {
   try {
     var resp = await fetch("https://neyeriz-proxy.sermetbaykal.workers.dev/suggestions");
     var items = await resp.json();
+    items = items.filter(function(i){ return i && i.status; });
     var pending = items.filter(function(i){ return i.status === "pending"; });
     cnt.textContent = pending.length ? "(" + pending.length + ")" : "";
     if (!pending.length) {
