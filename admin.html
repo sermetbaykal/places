@@ -304,19 +304,38 @@ async function yukle() {
     
     if (allStart < 0) { mesaj("Veri bulunamadi","err"); btn.disabled=false; btn.textContent="Siteye Yukle"; return; }
     
-    var existingData = JSON.parse(cur.slice(allStart+9, allEnd-1));
+    // Bracket sayarak dogru JSON sonunu bul
+    var depth=0, end=-1;
+    for(var ii=allStart+8; ii<cur.length; ii++){
+      if(cur[ii]==='[') depth++;
+      else if(cur[ii]===']'){ depth--; if(depth===0){end=ii;break;} }
+    }
+    var existingData = JSON.parse(cur.slice(allStart+8, end+1));
     var eb = {};
-    if (badgesStart > 0) { try { eb = JSON.parse(cur.slice(badgesStart+12, badgesEnd-1)); } catch(e) {} }
+    if (badgesStart > 0) { 
+      try { 
+        var bd=0, bend=-1;
+        for(var ii=badgesStart+11; ii<cur.length; ii++){
+          if(cur[ii]==='{') bd++;
+          else if(cur[ii]==='}'){bd--;if(bd===0){bend=ii;break;}}
+        }
+        eb = JSON.parse(cur.slice(badgesStart+11, bend+1)); 
+      } catch(e) {} 
+    }
     
     bekleyenler.forEach(function(p){ if(p.badges&&p.place_id){ eb[p.place_id]=p.badges; } });
     var temiz = bekleyenler.map(function(p){ var r=Object.assign({},p); delete r.badges; return r; });
     var nd = existingData.concat(temiz);
     
-    var nh = cur.slice(0, allStart) + "var ALL=" + JSON.stringify(nd) + ";" + cur.slice(allEnd);
+    var nh = cur.slice(0, allStart+8) + JSON.stringify(nd) + cur.slice(end+1);
     if (badgesStart > 0) {
       var nbs = nh.indexOf("var BADGES={");
-      var nbe = nh.indexOf("};", nbs) + 2;
-      nh = nh.slice(0, nbs) + "var BADGES=" + JSON.stringify(eb) + ";" + nh.slice(nbe);
+      var nbd2=0, nbend=-1;
+      for(var ii=nbs+11; ii<nh.length; ii++){
+        if(nh[ii]==='{') nbd2++;
+        else if(nh[ii]==='}'){nbd2--;if(nbd2===0){nbend=ii;break;}}
+      }
+      nh = nh.slice(0, nbs+11) + JSON.stringify(eb) + nh.slice(nbend+1);
     }
     
     var enc = btoa(unescape(encodeURIComponent(nh)));
@@ -353,15 +372,30 @@ async function yukle_OLD() {
     
     if (allStart < 0) { mesaj("Veri bulunamadi","err"); btn.disabled=false; btn.textContent="Siteye Yukle"; return; }
     
-    var existingData = JSON.parse(cur.slice(allStart+9, allEnd-1));
+    // Bracket sayarak dogru JSON sonunu bul
+    var depth=0, end=-1;
+    for(var ii=allStart+8; ii<cur.length; ii++){
+      if(cur[ii]==='[') depth++;
+      else if(cur[ii]===']'){ depth--; if(depth===0){end=ii;break;} }
+    }
+    var existingData = JSON.parse(cur.slice(allStart+8, end+1));
     var eb = {};
-    if (badgesStart > 0) { try { eb = JSON.parse(cur.slice(badgesStart+12, badgesEnd-1)); } catch(e) {} }
+    if (badgesStart > 0) { 
+      try { 
+        var bd=0, bend=-1;
+        for(var ii=badgesStart+11; ii<cur.length; ii++){
+          if(cur[ii]==='{') bd++;
+          else if(cur[ii]==='}'){bd--;if(bd===0){bend=ii;break;}}
+        }
+        eb = JSON.parse(cur.slice(badgesStart+11, bend+1)); 
+      } catch(e) {} 
+    }
     
     bekleyenler.forEach(function(p){ if(p.badges&&p.place_id){ eb[p.place_id]=p.badges; } });
     var temiz = bekleyenler.map(function(p){ var r=Object.assign({},p); delete r.badges; return r; });
     var nd = existingData.concat(temiz);
     
-    var nh = cur.slice(0, allStart) + "var ALL=" + JSON.stringify(nd) + ";" + cur.slice(allEnd);
+    var nh = cur.slice(0, allStart+8) + JSON.stringify(nd) + cur.slice(end+1);
     if (badgesStart > 0) {
       var newBadgesStart = nh.indexOf("var BADGES={");
       var newBadgesEnd = nh.indexOf("};", newBadgesStart) + 2;
