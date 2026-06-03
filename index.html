@@ -86,5 +86,71 @@ document.getElementById("fs2").addEventListener("input",render);
 document.getElementById("bcsv").addEventListener("click",function(){var fd=gf(),h=["Sehir","Ulke","Mekan","Kategori","Adres","Puan","Yorum"],rows=fd.map(function(r){return[r.city,r.country,r.name,ci(r.cat).l,r.addr,r.rat,r.rev].join(",");});var csv="\uFEFF"+[h.join(",")].concat(rows).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="neyeriz.csv";document.body.appendChild(a);a.click();document.body.removeChild(a);});
 fetch("/places.json?t="+Date.now()).then(function(r){return r.json();}).then(function(d){ALL=d;return fetch("/badges.json?t="+Date.now());}).then(function(r){return r.json();}).then(function(d){BADGES=d;buildChips();buildSelects();render();}).catch(function(e){console.error("Veri yuklenemedi:",e);});
 </script>
-</body>
+
+<div id="suggest-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:420px;position:relative">
+    <button onclick="document.getElementById('suggest-modal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">Mekan Öner 🍽</div>
+    <div style="font-size:12px;color:#888;margin-bottom:16px">Harika bir mekan buldun mu? Bizimle paylaş!</div>
+    <div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#888;margin-bottom:5px">Mekan Adı veya Google Maps Linki</div>
+    <input type="text" id="sg-query" placeholder="Örn: Nusr-Et Istanbul veya maps.google.com/..." style="width:100%;padding:10px;border:1.5px solid #DDD;border-radius:8px;font-size:13px;margin-bottom:8px;font-family:inherit">
+    <div id="sg-preview" style="display:none;padding:10px;background:#F5F0E8;border-radius:8px;margin-bottom:10px;font-size:12px"></div>
+    <button id="sg-search-btn" onclick="sgSearch()" style="width:100%;padding:10px;background:#0D0D0D;color:#C9A84C;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">🔍 Mekanı Bul</button>
+    <button id="sg-send-btn" onclick="sgSend()" style="width:100%;padding:10px;background:#C9A84C;color:#0D0D0D;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:none">✓ Öneriyi Gönder</button>
+    <div id="sg-msg" style="display:none;margin-top:8px;padding:8px;border-radius:8px;font-size:12px;text-align:center"></div>
+  </div>
+</div>
+<button onclick="document.getElementById('suggest-modal').style.display='flex'" style="position:fixed;bottom:20px;right:20px;background:#C9A84C;color:#0D0D0D;border:none;border-radius:50px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.2);z-index:999">+ Mekan Öner</button>
+<script>
+var sgMekan = null;
+async function sgSearch() {
+  var q = document.getElementById("sg-query").value.trim();
+  if (!q) return;
+  var btn = document.getElementById("sg-search-btn");
+  btn.textContent = "Aranıyor..."; btn.disabled = true;
+  try {
+    var r = await fetch("https://places.googleapis.com/v1/places:searchText", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","X-Goog-Api-Key":"AIzaSyA-gGCMNxcTMb2CsTJYJnlqTxBTY6-NL6I","X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress"},
+      body:JSON.stringify({textQuery:q,maxResultCount:1})
+    });
+    var d = await r.json();
+    if (d.places && d.places.length) {
+      var p = d.places[0];
+      sgMekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,query:q};
+      var prev = document.getElementById("sg-preview");
+      prev.innerHTML = "<strong>"+sgMekan.name+"</strong><br><span style='color:#888'>"+sgMekan.addr+"</span><br><span style='color:#C9A84C'>"+sgMekan.rat.toFixed(1)+"★ · "+sgMekan.rev.toLocaleString("tr-TR")+" yorum</span>";
+      prev.style.display = "block";
+      document.getElementById("sg-send-btn").style.display = "block";
+    } else {
+      document.getElementById("sg-msg").textContent = "Mekan bulunamadı, farklı bir isim dene.";
+      document.getElementById("sg-msg").style.display = "block";
+      document.getElementById("sg-msg").style.background = "#FDECEA";
+      document.getElementById("sg-msg").style.color = "#8B2010";
+    }
+  } catch(e) {}
+  btn.textContent = "🔍 Mekanı Bul"; btn.disabled = false;
+}
+async function sgSend() {
+  if (!sgMekan) return;
+  var btn = document.getElementById("sg-send-btn");
+  btn.textContent = "Gönderiliyor..."; btn.disabled = true;
+  try {
+    var r = await fetch("https://neyeriz-proxy.sermetbaykal.workers.dev/suggest", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(sgMekan)
+    });
+    var d = await r.json();
+    if (d.ok) {
+      var msg = document.getElementById("sg-msg");
+      msg.textContent = "✓ Teşekkürler! Öneriniz incelemeye alındı.";
+      msg.style.background = "#E4F5EE"; msg.style.color = "#0A5838"; msg.style.display = "block";
+      setTimeout(function(){ document.getElementById("suggest-modal").style.display="none"; msg.style.display="none"; document.getElementById("sg-preview").style.display="none"; document.getElementById("sg-send-btn").style.display="none"; document.getElementById("sg-query").value=""; sgMekan=null; }, 2000);
+    }
+  } catch(e) {}
+  btn.textContent = "✓ Öneriyi Gönder"; btn.disabled = false;
+}
+document.getElementById("sg-query").addEventListener("keydown",function(e){if(e.key==="Enter")sgSearch();});
+</script></body>
 </html>
