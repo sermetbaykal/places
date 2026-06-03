@@ -287,6 +287,57 @@ async function yukle() {
   if (!bekleyenler.length) { mesaj("Eklenecek mekan yok","err"); return; }
   var btn = event.target; btn.textContent = "Yukleniyor..."; btn.disabled = true;
   try {
+    // index.html'i raw olarak cek
+    var r = await fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/index.html?t="+Date.now());
+    var cur = await r.text();
+    
+    // GitHub API ile SHA al
+    var r2 = await fetch("https://api.github.com/repos/"+GR+"/contents/index.html",{headers:{"Authorization":"token "+GT}});
+    var fd = await r2.json();
+    var sha = fd.sha;
+    
+    // ALL verisini bul
+    var allStart = cur.indexOf("var ALL=[");
+    var allEnd = cur.indexOf("];", allStart) + 2;
+    var badgesStart = cur.indexOf("var BADGES={");
+    var badgesEnd = cur.indexOf("};", badgesStart) + 2;
+    
+    if (allStart < 0) { mesaj("Veri bulunamadi","err"); btn.disabled=false; btn.textContent="Siteye Yukle"; return; }
+    
+    var existingData = JSON.parse(cur.slice(allStart+9, allEnd-1));
+    var eb = {};
+    if (badgesStart > 0) { try { eb = JSON.parse(cur.slice(badgesStart+12, badgesEnd-1)); } catch(e) {} }
+    
+    bekleyenler.forEach(function(p){ if(p.badges&&p.place_id){ eb[p.place_id]=p.badges; } });
+    var temiz = bekleyenler.map(function(p){ var r=Object.assign({},p); delete r.badges; return r; });
+    var nd = existingData.concat(temiz);
+    
+    var nh = cur.slice(0, allStart) + "var ALL=" + JSON.stringify(nd) + ";" + cur.slice(allEnd);
+    if (badgesStart > 0) {
+      var nbs = nh.indexOf("var BADGES={");
+      var nbe = nh.indexOf("};", nbs) + 2;
+      nh = nh.slice(0, nbs) + "var BADGES=" + JSON.stringify(eb) + ";" + nh.slice(nbe);
+    }
+    
+    var enc = btoa(unescape(encodeURIComponent(nh)));
+    var rsp = await fetch("https://api.github.com/repos/"+GR+"/contents/index.html",{
+      method:"PUT",
+      headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},
+      body:JSON.stringify({message:"add "+bekleyenler.length+" places",sha:sha,content:enc})
+    });
+    var rs = await rsp.json();
+    if (rs.content) {
+      bekleyenler = []; localStorage.setItem("bk","[]"); listele();
+      mesaj("Yuklendi! Sitede "+nd.length+" mekan var.","ok");
+      istatistik();
+    } else { mesaj("Hata: "+JSON.stringify(rs),"err"); }
+  } catch(e) { mesaj("Hata: "+e.message,"err"); }
+  btn.textContent = "Siteye Yukle"; btn.disabled = false;
+}
+async function yukle_OLD() {
+  if (!bekleyenler.length) { mesaj("Eklenecek mekan yok","err"); return; }
+  var btn = event.target; btn.textContent = "Yukleniyor..."; btn.disabled = true;
+  try {
     var r = await fetch("https://api.github.com/repos/"+GR+"/contents/index.html",{headers:{"Authorization":"token "+GT}});
     var fd = await r.json(); var sha = fd.sha;
     var raw = fd.content.replace(/\n/g,"");
