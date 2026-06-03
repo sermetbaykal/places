@@ -284,7 +284,10 @@ function filterMekanlar() {
   }).join("");
 }
 
-function openEdit(idx) {
+var currentEditBadges = {positive:[], negative:[]};
+var currentBadgesData = {};
+
+async function openEdit(idx) {
   var m = mekanlarData[idx];
   document.getElementById("edit-name").value = m.name;
   document.getElementById("edit-addr").value = m.addr || "";
@@ -293,8 +296,65 @@ function openEdit(idx) {
   catSel.innerHTML = KATLAR.map(function(k){ return "<option value='"+k.k+"'"+(k.k===m.cat?" selected":"")+">"+k.l+"</option>"; }).join("");
   var citySel = document.getElementById("edit-city");
   citySel.innerHTML = SEHIRLER.map(function(s){ return "<option value='"+s.city+"'"+(s.city===m.city?" selected":"")+">"+s.city+"</option>"; }).join("");
+  document.getElementById("edit-place-id").value = m.place_id || "";
+  try {
+    var rb = await fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/badges.json?t="+Date.now());
+    currentBadgesData = await rb.json();
+    currentEditBadges = currentBadgesData[m.place_id||""] || {positive:[], negative:[]};
+  } catch(e) { currentEditBadges = {positive:[], negative:[]}; }
+  renderEditBadges();
   var modal = document.getElementById("edit-modal");
   modal.style.display = "flex";
+}
+
+function renderEditBadges() {
+  var posEl = document.getElementById("edit-pos-badges");
+  var negEl = document.getElementById("edit-neg-badges");
+  posEl.innerHTML = (currentEditBadges.positive||[]).map(function(b,i){
+    return '<span style="background:#1A7A2E22;color:#58C890;border:1px solid #1A7A2E44;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer" onclick="removeBadge(\'pos\','+i+')">'+b+' x</span>';
+  }).join("");
+  negEl.innerHTML = (currentEditBadges.negative||[]).map(function(b,i){
+    return '<span style="background:#C4391A22;color:#F09080;border:1px solid #C4391A44;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer" onclick="removeBadge(\'neg\','+i+')">'+b+' x</span>';
+  }).join("");
+}
+
+function addBadge(type) {
+  var inp = document.getElementById(type==="pos"?"new-pos-badge":"new-neg-badge");
+  var val = inp.value.trim();
+  if (!val) return;
+  if (type==="pos") currentEditBadges.positive.push(val);
+  else currentEditBadges.negative.push(val);
+  inp.value = "";
+  renderEditBadges();
+}
+
+function removeBadge(type, idx) {
+  if (type==="pos") currentEditBadges.positive.splice(idx,1);
+  else currentEditBadges.negative.splice(idx,1);
+  renderEditBadges();
+}
+
+async function badgeYenile() {
+  var name = document.getElementById("edit-name").value;
+  var btn = document.getElementById("btn-badge-refresh");
+  btn.textContent = "Analiz yapiliyor..."; btn.disabled = true;
+  try {
+    var r = await fetch("https://places.googleapis.com/v1/places:searchText", {
+      method:"POST",
+      headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.reviews"},
+      body:JSON.stringify({textQuery:name,maxResultCount:1,languageCode:"en"})
+    });
+    var d = await r.json();
+    if (d.places && d.places.length) {
+      var reviews = (d.places[0].reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);
+      if (reviews && CK) {
+        var badges = await badgeAl(reviews);
+        currentEditBadges = badges;
+        renderEditBadges();
+      }
+    }
+  } catch(e) { mesaj("Badge hatasi: "+e.message,"err"); }
+  btn.textContent = "AI ile Yenile"; btn.disabled = false;
 }
 
 function closeEdit() {
@@ -313,10 +373,26 @@ async function saveEdit() {
   mekanlarData[idx].city = cityVal;
   mekanlarData[idx].country = so.country;
   mekanlarData[idx].flag = so.flag;
+  var pid = document.getElementById("edit-place-id").value;
+  if (pid) currentBadgesData[pid] = currentEditBadges;
   closeEdit();
   await saveToGithub();
+  await saveBadgesToGithub();
   filterMekanlar();
   mesaj("Mekan guncellendi!","ok");
+}
+
+async function saveBadgesToGithub() {
+  try {
+    var r = await fetch("https://api.github.com/repos/"+GR+"/contents/badges.json",{headers:{"Authorization":"token "+GT}});
+    var fd = await r.json();
+    var enc = btoa(unescape(encodeURIComponent(JSON.stringify(currentBadgesData))));
+    await fetch("https://api.github.com/repos/"+GR+"/contents/badges.json",{
+      method:"PUT",
+      headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},
+      body:JSON.stringify({message:"update badges",sha:fd.sha,content:enc})
+    });
+  } catch(e) { console.log("badges hata:", e); }
 }
 
 async function silMekan(idx) {
@@ -495,6 +571,29 @@ document.getElementById("pw").addEventListener("keydown",function(e){if(e.key===
     <label>Sehir</label>
     <select id="edit-city"></select>
     <input type="hidden" id="edit-idx">
+    <input type="hidden" id="edit-place-id">
+    <div style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <label style="margin:0;font-size:10px;color:#888;letter-spacing:1px;text-transform:uppercase">Badgeler</label>
+        <button onclick="badgeYenile()" id="btn-badge-refresh" style="padding:3px 8px;background:#C9A84C22;color:#C9A84C;border:1px solid #C9A84C44;border-radius:6px;cursor:pointer;font-size:11px">AI ile Yenile</button>
+      </div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:10px;color:#666;margin-bottom:4px">OLUMLU</div>
+        <div id="edit-pos-badges" style="display:flex;flex-wrap:wrap;gap:4px;min-height:24px"></div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <input type="text" id="new-pos-badge" placeholder="Yeni olumlu badge..." style="flex:1;padding:5px 8px;font-size:11px">
+          <button onclick="addBadge('pos')" style="padding:5px 10px;background:#1A7A2E;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap">+ Ekle</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#666;margin-bottom:4px">OLUMSUZ</div>
+        <div id="edit-neg-badges" style="display:flex;flex-wrap:wrap;gap:4px;min-height:24px"></div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <input type="text" id="new-neg-badge" placeholder="Yeni olumsuz badge..." style="flex:1;padding:5px 8px;font-size:11px">
+          <button onclick="addBadge('neg')" style="padding:5px 10px;background:#C4391A;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap">+ Ekle</button>
+        </div>
+      </div>
+    </div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button onclick="saveEdit()" style="flex:1;padding:10px;background:#C9A84C;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer">Kaydet</button>
       <button onclick="closeEdit()" style="flex:1;padding:10px;background:transparent;color:#888;border:1px solid #444;border-radius:8px;cursor:pointer">Iptal</button>
