@@ -65,7 +65,8 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
     </div>
   </div>
 
-  <div class="card"><h2>Onay Bekleyenler <span id="sug-cnt" style="font-size:13px;color:#C9A84C"></span></h2><div id="sug-list"><div style="font-size:12px;color:#666">Yukleniyor...</div></div><button onclick="loadSuggestions()" style="width:100%;padding:8px;background:transparent;color:#888;border:1px solid #444;border-radius:8px;cursor:pointer;margin-top:8px;font-size:12px">Yenile</button></div><div class="card"><h2>Mekan Ekle</h2>
+  <div class="card">
+    <h2>Mekan Ekle</h2>
     <label>Google Maps Linki veya Mekan Adi</label>
     <input type="text" id="q" placeholder="Ornek: Nusr-Et Istanbul">
     <button onclick="ara()">Mekan Bilgilerini Cek</button>
@@ -73,11 +74,11 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
       <div id="mname" style="font-size:15px;font-weight:700;margin-bottom:4px"></div>
       <div id="mrat" style="color:#C9A84C;font-size:17px;font-weight:800;margin-bottom:3px"></div>
       <div id="maddr" style="font-size:11px;color:#666;margin-bottom:8px"></div>
-      <div id="loc-info" style="font-size:12px;color:#C9A84C;margin-bottom:6px;font-weight:600"></div>
       <div id="mbadges" style="margin-bottom:10px"></div>
       <label>Kategori</label>
       <div class="cats" id="cats"></div>
-      <div style="font-size:10px;color:#666;margin-bottom:8px">📍 Konum bilgisi Google Maps'ten otomatik gelir</div>
+      <label>Sehir</label>
+      <select id="sehir"></select>
       <button class="green" onclick="ekle()" style="margin-top:8px">Listeye Ekle</button>
     </div>
     <div class="msg" id="msg"></div>
@@ -127,23 +128,6 @@ var SEHIRLER = [
   {city:"Amsterdam",country:"Hollanda",flag:"NL"},{city:"Cape Town",country:"G.Afrika",flag:"ZA"}
 ];
 
-function simpleEncrypt(text, key) {
-  var result = "";
-  for (var i = 0; i < text.length; i++) {
-    result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-  }
-  return btoa(result);
-}
-function simpleDecrypt(encoded, key) {
-  try {
-    var text = atob(encoded);
-    var result = "";
-    for (var i = 0; i < text.length; i++) {
-      result += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
-    }
-    return result;
-  } catch(e) { return ""; }
-}
 function giris() {
   var pw = document.getElementById("pw").value;
   if (pw !== SIFRE) {
@@ -152,30 +136,13 @@ function giris() {
     setTimeout(function(){ h.style.display = "none"; }, 2000);
     return;
   }
-  // Onceden kaydedilmis sifreli tokenlar var mi?
-  var savedGT = localStorage.getItem("enc_ngt");
-  var savedAK = localStorage.getItem("enc_nak");
-  if (savedGT && savedAK) {
-    GT = simpleDecrypt(savedGT, pw);
-    AK = simpleDecrypt(savedAK, pw);
-    var savedCK = localStorage.getItem("enc_nck");
-    if (savedCK) CK = simpleDecrypt(savedCK, pw);
-    if (GT && AK) {
-      document.getElementById("lock").style.display = "none";
-      document.getElementById("app").style.display = "block";
-      baslat();
-      return;
-    }
-  }
   GT = document.getElementById("gt").value.trim();
   AK = document.getElementById("ak").value.trim();
   CK = document.getElementById("ck").value.trim();
   if (!GT || !AK) { alert("GitHub Token ve Google API Key zorunlu!"); return; }
-  localStorage.setItem("enc_ngt", simpleEncrypt(GT, pw));
-  localStorage.setItem("enc_nak", simpleEncrypt(AK, pw));
-  localStorage.setItem("enc_nck", simpleEncrypt(CK, pw));
-  // Eski kayitlari temizle
-  localStorage.removeItem("ngt"); localStorage.removeItem("nak"); localStorage.removeItem("nck");
+  localStorage.setItem("ngt", GT);
+  localStorage.setItem("nak", AK);
+  localStorage.setItem("nck", CK);
   document.getElementById("lock").style.display = "none";
   document.getElementById("app").style.display = "block";
   baslat();
@@ -204,17 +171,14 @@ function baslat() {
     ch.appendChild(b);
   });
   var sel = document.getElementById("sehir");
-  if(sel) {
-    sel.innerHTML = '<option value="">-- Listeden sec --</option><option value="__yeni__">+ Yeni sehir ekle...</option>';
-    SEHIRLER.forEach(function(s) {
-      var o = document.createElement("option");
-      o.value = s.city; o.textContent = s.city; sel.appendChild(o);
-    });
-  }
+  sel.innerHTML = "";
+  SEHIRLER.forEach(function(s) {
+    var o = document.createElement("option");
+    o.value = s.city; o.textContent = s.city; sel.appendChild(o);
+  });
   istatistik();
   listele();
   loadMekanlar();
-  loadSuggestions();
 }
 
 async function istatistik() {
@@ -237,29 +201,16 @@ async function ara() {
   try {
     var r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
-      headers: {"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress,places.reviews,places.addressComponents"},
+      headers: {"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress,places.reviews"},
       body: JSON.stringify({textQuery:q,maxResultCount:1,languageCode:"en"})
     });
     var d = await r.json();
     if (d.places && d.places.length) {
       var p = d.places[0];
-      // Adres bilesenleri
-      var comps = p.addressComponents || [];
-      var district = "", city = "", country = "", countryCode = "";
-      comps.forEach(function(c){
-        if(c.types.indexOf("administrative_area_level_2")>=0) district=c.longText;
-        else if(c.types.indexOf("administrative_area_level_1")>=0) city=c.longText;
-        else if(c.types.indexOf("country")>=0){ country=c.longText; countryCode=c.shortText; }
-      });
-      var displayCity = district || city || "";
-      // Flag emoji from country code
-      var flag = countryCode ? countryCode.split("").map(function(c){return String.fromCodePoint(c.charCodeAt(0)+127397);}).join("") : "🌍";
-      mekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]},city:displayCity,country:country,flag:flag,parent_city:city};
+      mekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]}};
       document.getElementById("mname").textContent = mekan.name;
       document.getElementById("mrat").textContent = mekan.rat.toFixed(1)+"★ · "+mekan.rev.toLocaleString("tr-TR")+" yorum";
       document.getElementById("maddr").textContent = mekan.addr;
-      var locInfo = document.getElementById("loc-info");
-      if(locInfo) locInfo.textContent = mekan.flag+" "+mekan.city+(mekan.parent_city&&mekan.parent_city!==mekan.city?", "+mekan.parent_city:"")+" / "+mekan.country;
       document.getElementById("mbadges").innerHTML = '<span style="color:#666;font-size:11px">AI analiz yapiliyor...</span>';
       document.getElementById("sonuc").style.display = "block";
       var reviews = (p.reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);
@@ -294,8 +245,8 @@ async function badgeAl(reviewText) {
 function ekle() {
   if (!mekan) { mesaj("Once mekan cek","err"); return; }
   if (!seciliKat) { mesaj("Kategori sec","err"); return; }
-  var sv = mekan.city || document.getElementById("sehir").value.trim();
-  var so = {flag: mekan.flag||"🌍", country: mekan.country||sv};
+  var sv = document.getElementById("sehir").value;
+  var so = SEHIRLER.find(function(s){return s.city===sv;})||{flag:"",country:""};
   var kayit = Object.assign({},mekan,{cat:seciliKat,cat_label:KATLAR.find(function(k){return k.k===seciliKat;}).l,city:sv,country:so.country,flag:so.flag});
   bekleyenler.push(kayit);
   localStorage.setItem("bk",JSON.stringify(bekleyenler));
@@ -468,25 +419,6 @@ async function saveToGithub() {
   } catch(e) { mesaj("Hata: "+e.message,"err"); }
 }
 
-function sehirSec(val) {
-  val = val || document.getElementById("sehir").value;
-  var custom = document.getElementById("sehir-custom");
-  var country = document.getElementById("country-custom");
-  var flag = document.getElementById("flag-custom");
-  if (val === "" || val === "__yeni__") {
-    custom.style.display = "block";
-    country.style.display = "block";
-    flag.style.display = "block";
-  } else {
-    custom.style.display = "none";
-    country.style.display = "none";
-    flag.style.display = "none";
-    document.getElementById("sehir-custom").value = "";
-    document.getElementById("country-custom").value = "";
-    document.getElementById("flag-custom").value = "";
-  }
-}
-
 function listele() {
   var el = document.getElementById("liste");
   document.getElementById("cnt").textContent = bekleyenler.length;
@@ -618,52 +550,6 @@ async function yukle_OLD() {
 }
 
 
-
-async function loadSuggestions() {
-  var el = document.getElementById("sug-list");
-  var cnt = document.getElementById("sug-cnt");
-  if(!el) return;
-  el.innerHTML = "<div style='font-size:12px;color:#666'>Yukleniyor...</div>";
-  try {
-    var r = await fetch("https://neyeriz-proxy.sermetbaykal.workers.dev/suggestions");
-    var items = await r.json();
-    var pending = items.filter(function(i){return i.status==="pending";});
-    cnt.textContent = pending.length ? "("+pending.length+")" : "";
-    if (!pending.length) { el.innerHTML = "<div style='font-size:12px;color:#666'>Onay bekleyen oneri yok</div>"; return; }
-    var html2 = "";
-    pending.sort(function(a,b){return b.ts.localeCompare(a.ts);}).forEach(function(item){
-      html2 += "<div style='background:#111;border-radius:8px;padding:10px;margin-bottom:6px'>";
-      html2 += "<div style='font-size:12px;font-weight:600;margin-bottom:3px'>"+item.name+"</div>";
-      html2 += "<div style='font-size:10px;color:#888;margin-bottom:6px'>"+item.addr+" . "+item.rat.toFixed(1)+"*</div>";
-      html2 += "<div style='display:flex;gap:6px'>";
-      html2 += "<button onclick='approveSuggestion(this)' data-item='"+encodeURIComponent(JSON.stringify(item))+"' style='flex:1;padding:5px;background:#1A7A2E;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:11px'>Onayla</button>";
-      html2 += "<button onclick='rejectSuggestion(""+item.id+"")' style='flex:1;padding:5px;background:transparent;color:#F09080;border:1px solid #C4391A44;border-radius:6px;cursor:pointer;font-size:11px'>Reddet</button>";
-      html2 += "</div></div>";
-    });
-    el.innerHTML = html2;
-  } catch(e) { el.innerHTML = "<div style='font-size:12px;color:#F09080'>Hata: "+e.message+"</div>"; }
-}
-
-async function approveSuggestion(btn) {
-  var item = JSON.parse(decodeURIComponent(btn.getAttribute("data-item")));
-  mekan = {place_id:item.place_id||"",name:item.name,addr:item.addr,rat:item.rat,rev:item.rev||0,badges:{positive:[],negative:[]}};
-  document.getElementById("q").value = item.name;
-  document.getElementById("mname").textContent = item.name;
-  document.getElementById("mrat").textContent = item.rat.toFixed(1)+"*";
-  document.getElementById("maddr").textContent = item.addr;
-  document.getElementById("mbadges").innerHTML = "";
-  document.getElementById("sonuc").style.display = "block";
-  await rejectSuggestion(item.id);
-  mesaj("Onaylandi! Kategori sec ve listeye ekle.","ok");
-  window.scrollTo(0,0);
-}
-
-async function rejectSuggestion(id) {
-  try {
-    await fetch("https://neyeriz-proxy.sermetbaykal.workers.dev/suggestions/"+id, {method:"DELETE"});
-    loadSuggestions();
-  } catch(e) {}
-}
 function mesaj(t,c) {
   var e = document.getElementById("msg");
   e.textContent = t; e.className = "msg "+c; e.style.display = "block";
