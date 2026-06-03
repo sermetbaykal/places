@@ -78,10 +78,8 @@ button{width:100%;padding:11px;background:#C9A84C;color:#000;border:none;border-
       <label>Kategori</label>
       <div class="cats" id="cats"></div>
       <label>Sehir</label>
-      <select id="sehir" onchange="sehirSec()">
-        <option value="">-- Listeden sec --</option>
-      </select>
-      <input type="text" id="sehir-custom" placeholder="Veya yeni sehir yaz..." style="margin-top:6px;display:none">
+      <select id="sehir" onchange="sehirSec(this.value)" style="margin-bottom:6px"></select>
+      <input type="text" id="sehir-custom" placeholder="Yeni sehir adi..." style="margin-top:4px;display:none">
       <input type="text" id="country-custom" placeholder="Ulke adi..." style="margin-top:4px;display:none">
       <input type="text" id="flag-custom" placeholder="Flag emoji (orn: 🇩🇪)" style="margin-top:4px;display:none">
       <button class="green" onclick="ekle()" style="margin-top:8px">Listeye Ekle</button>
@@ -210,7 +208,7 @@ function baslat() {
     ch.appendChild(b);
   });
   var sel = document.getElementById("sehir");
-  sel.innerHTML = "";
+  sel.innerHTML = '<option value="">-- Listeden sec --</option><option value="__yeni__">+ Yeni sehir ekle...</option>';
   SEHIRLER.forEach(function(s) {
     var o = document.createElement("option");
     o.value = s.city; o.textContent = s.city; sel.appendChild(o);
@@ -460,12 +458,12 @@ async function saveToGithub() {
   } catch(e) { mesaj("Hata: "+e.message,"err"); }
 }
 
-function sehirSec() {
-  var val = document.getElementById("sehir").value;
+function sehirSec(val) {
+  val = val || document.getElementById("sehir").value;
   var custom = document.getElementById("sehir-custom");
   var country = document.getElementById("country-custom");
   var flag = document.getElementById("flag-custom");
-  if (val === "") {
+  if (val === "" || val === "__yeni__") {
     custom.style.display = "block";
     country.style.display = "block";
     flag.style.display = "block";
@@ -473,6 +471,9 @@ function sehirSec() {
     custom.style.display = "none";
     country.style.display = "none";
     flag.style.display = "none";
+    document.getElementById("sehir-custom").value = "";
+    document.getElementById("country-custom").value = "";
+    document.getElementById("flag-custom").value = "";
   }
 }
 
