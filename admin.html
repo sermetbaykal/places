@@ -182,22 +182,15 @@ function baslat() {
 
 async function istatistik() {
   try {
-    var r = await fetch("https://api.github.com/repos/"+GR+"/contents/index.html", {headers:{"Authorization":"token "+GT}});
-    var fd = await r.json();
-    var raw = fd.content.replace(/\n/g,"");
-    var binary = atob(raw);
-    var bytes = new Uint8Array(binary.length);
-    for(var i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
-    var cur = new TextDecoder("utf-8").decode(bytes);
-    var m = cur.match(/var ALL=(\[[\s\S]*?\]);/);
-    if (m) {
-      var data = JSON.parse(m[1]);
+    var r = await fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/places.json?t="+Date.now());
+    var data = await r.json();
+    if (data && data.length) {
       document.getElementById("st1").textContent = data.length;
       document.getElementById("st2").textContent = new Set(data.map(function(r){return r.city;})).size;
       var avg = data.reduce(function(s,r){return s+r.rat;},0)/data.length;
       document.getElementById("st3").textContent = avg.toFixed(2);
     }
-  } catch(e) {}
+  } catch(e) { console.log("istatistik hata:", e); }
 }
 
 async function ara() {
