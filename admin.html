@@ -222,7 +222,7 @@ async function ara() {
       var flag = countryCode ? countryCode.split("").map(function(c){return String.fromCodePoint(c.charCodeAt(0)+127397);}).join("") : "🌍";
       if(document.getElementById("sehir-txt")) document.getElementById("sehir-txt").value = displayCity;
       if(document.getElementById("ulke-txt")) document.getElementById("ulke-txt").value = country;
-      mekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]},city:displayCity,country:country,flag:flag};
+      mekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||p.ratingCount||0,badges:{positive:[],negative:[]},city:displayCity,country:country,flag:flag};
       document.getElementById("mname").textContent = mekan.name;
       document.getElementById("mrat").textContent = mekan.rat.toFixed(1)+"★ · "+mekan.rev.toLocaleString("tr-TR")+" yorum";
       document.getElementById("maddr").textContent = mekan.addr;
