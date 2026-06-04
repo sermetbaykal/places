@@ -296,8 +296,6 @@ function renderEditBdg(){
   var nh="";(editBdg.negative||[]).forEach(function(b,i){nh+='<span class="rbn" style="cursor:pointer" onclick="remBdg(this,\'n\','+i+')">'+b+' x</span>';});document.getElementById("eneg").innerHTML=nh;
 }
 function remBdg(el,t,i){if(t==="p")editBdg.positive.splice(i,1);else editBdg.negative.splice(i,1);renderEditBdg();}
-  document.getElementById("eneg").innerHTML=(editBdg.negative||[]).map(function(b,i){return'<span class="rbn" style="cursor:pointer" onclick="remBdg('n','+i+')">'+b+' x</span>';}).join("");
-}
 function addBdg(t){var inp=document.getElementById(t==="p"?"npos":"nneg");var v=inp.value.trim();if(!v)return;if(t==="p")editBdg.positive.push(v);else editBdg.negative.push(v);inp.value="";renderEditBdg();}
 
 async function refreshBadges(){
