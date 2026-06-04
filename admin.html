@@ -625,7 +625,7 @@ async function approveSug(btn) {
   try {
     var pr = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method:"POST",
-      headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.addressComponents,places.reviews,places.rating,places.userRatingCount"},
+      headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.addressComponents,places.rating,places.userRatingCount"},
       body:JSON.stringify({textQuery:item.name,maxResultCount:1,languageCode:"en"})
     });
     var pd = await pr.json();
@@ -644,7 +644,19 @@ async function approveSug(btn) {
       mekan.city = displayCity; mekan.country = country; mekan.flag = flag;
       if(document.getElementById("sehir-txt")) document.getElementById("sehir-txt").value = displayCity;
       if(document.getElementById("ulke-txt")) document.getElementById("ulke-txt").value = country;
-      var reviews = (p.reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);
+      // Reviews icin ayri cagri
+      var reviews = "";
+      try {
+        var rr2 = await fetch("https://places.googleapis.com/v1/places:searchText", {
+          method:"POST",
+          headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.reviews"},
+          body:JSON.stringify({textQuery:item.name,maxResultCount:1,languageCode:"en"})
+        });
+        var rd2 = await rr2.json();
+        if(rd2.places && rd2.places.length) {
+          reviews = (rd2.places[0].reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);
+        }
+      } catch(e) {}
       if(reviews && CK) {
         var badges = await badgeAl(reviews);
         mekan.badges = badges;
