@@ -84,7 +84,7 @@ function render(){var fd=gf();fd.sort(function(a,b){var av=a[sc],bv=b[sc];if(typ
 ["fc","fco","fr","fv"].forEach(function(id){document.getElementById(id).addEventListener("change",render);});
 document.getElementById("fs2").addEventListener("input",render);
 document.getElementById("bcsv").addEventListener("click",function(){var fd=gf(),h=["Sehir","Ulke","Mekan","Kategori","Adres","Puan","Yorum"],rows=fd.map(function(r){return[r.city,r.country,r.name,ci(r.cat).l,r.addr,r.rat,r.rev].join(",");});var csv="\uFEFF"+[h.join(",")].concat(rows).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="neyeriz.csv";document.body.appendChild(a);a.click();document.body.removeChild(a);});
-fetch("/places.json?t="+Date.now()).then(function(r){return r.json();}).then(function(d){ALL=d;return fetch("/badges.json?t="+Date.now());}).then(function(r){return r.json();}).then(function(d){BADGES=d;buildChips();buildSelects();render();}).catch(function(e){console.error("Veri yuklenemedi:",e);});
+fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/places.json?t="+Date.now()).then(function(r){return r.json();}).then(function(d){ALL=d;return fetch("/badges.json?t="+Date.now());}).then(function(r){return r.json();}).then(function(d){BADGES=d;buildChips();buildSelects();render();}).catch(function(e){console.error("Veri yuklenemedi:",e);});
 </script>
 
 <div id="suggest-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px">
