@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Neyeriz Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0D0D0D;color:#fff;min-height:100vh}
+.topbar{background:#1A1A1A;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:15px;font-weight:700;color:#C9A84C;letter-spacing:1px}
+.logout{font-size:11px;color:rgba(255,255,255,0.3);cursor:pointer;padding:4px 10px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;background:none}
+.main{max-width:580px;margin:0 auto;padding:16px}
+.card{background:#1A1A1A;border-radius:12px;padding:18px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.07)}
+.card h2{font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:14px}
+label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;margin-top:11px}
+input,select{width:100%;padding:9px 11px;background:#0D0D0D;border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:13px;font-family:inherit}
+input:focus,select:focus{outline:none;border-color:#C9A84C}
+.btn{width:100%;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;font-family:inherit}
+.btn-gold{background:#C9A84C;color:#0D0D0D}.btn-gold:disabled{opacity:0.4}
+.btn-green{background:#1A7A2E;color:#fff}
+.btn-outline{background:transparent;color:#C9A84C;border:1.5px solid #C9A84C}
+.msg{margin-top:10px;padding:9px 12px;border-radius:8px;font-size:12px;font-weight:500;display:none}
+.ok{background:rgba(26,122,46,0.2);border:1px solid #1A7A2E;color:#58C890}
+.err{background:rgba(196,57,26,0.2);border:1px solid #C4391A;color:#F09080}
+.preview{margin-top:12px;padding:12px;background:#0D0D0D;border-radius:8px;display:none}
+.pvn{font-size:14px;font-weight:700;margin-bottom:3px}
+.pvr{font-size:17px;font-weight:800;color:#C9A84C;margin-bottom:2px}
+.pva{font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:2px}
+.pvl{font-size:12px;color:#C9A84C;font-weight:600;margin-bottom:8px}
+.pvb{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;min-height:20px}
+.rbp{background:rgba(26,122,46,0.2);color:#58C890;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600}
+.rbn{background:rgba(196,57,26,0.2);color:#F09080;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600}
+.cats{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;margin-bottom:4px}
+.catbtn{padding:5px 10px;border-radius:20px;font-size:11px;border:1px solid rgba(255,255,255,0.12);background:transparent;color:rgba(255,255,255,0.4);cursor:pointer;font-family:inherit}
+.catbtn.on{border-color:#C9A84C;color:#C9A84C;background:rgba(201,168,76,0.1)}
+.pitem{padding:9px 11px;background:#0D0D0D;border-radius:8px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
+.pitem-name{font-size:12px;font-weight:600}
+.pitem-meta{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px}
+.pdel{background:none;border:none;color:rgba(255,255,255,0.2);cursor:pointer;font-size:18px;padding:2px 6px;width:auto;flex-shrink:0}
+.stat-row{display:flex;gap:10px}
+.stat{background:#0D0D0D;border-radius:8px;padding:10px;flex:1;text-align:center}
+.stat-n{font-size:18px;font-weight:700;color:#C9A84C}
+.stat-l{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.si{background:#0D0D0D;border-radius:8px;padding:10px;margin-bottom:6px}
+.si-name{font-size:12px;font-weight:600;margin-bottom:2px}
+.si-meta{font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:7px}
+.si-btns{display:flex;gap:6px}
+.si-btns button{flex:1;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;font-family:inherit}
+.si-ok{background:#1A7A2E;color:#fff;border:none}
+.si-no{background:transparent;color:#F09080;border:1px solid rgba(196,57,26,0.4)}
+.ei{background:#0D0D0D;border-radius:8px;padding:9px 11px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center}
+.ei-btns{display:flex;gap:5px;flex-shrink:0}
+.ei-btns button{padding:4px 8px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;border:none}
+.ei-edit{background:rgba(201,168,76,0.15);color:#C9A84C}
+.ei-del{background:rgba(196,57,26,0.15);color:#F09080}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.mbox{background:#1A1A1A;border-radius:12px;padding:20px;width:100%;max-width:480px;position:relative;margin:auto}
+.mbox h3{font-size:14px;font-weight:700;color:#C9A84C;margin-bottom:14px}
+.mclose{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,0.3);font-size:20px;cursor:pointer;padding:0}
+.bdg-list{display:flex;flex-wrap:wrap;gap:4px;min-height:22px;margin-bottom:6px}
+.bdg-add{display:flex;gap:6px;margin-top:4px}
+.bdg-add input{flex:1;padding:5px 8px;font-size:11px}
+.bdg-add button{padding:5px 10px;font-size:11px;font-weight:600;border:none;border-radius:6px;cursor:pointer;font-family:inherit}
+#lock{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.lcard{background:#1A1A1A;border-radius:16px;padding:28px;width:100%;max-width:360px;border:1px solid rgba(255,255,255,0.08)}
+.lcard h1{font-size:18px;font-weight:700;color:#C9A84C;margin-bottom:4px}
+.lcard p{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:18px}
+#app{display:none}
+</style>
+</head>
+<body>
+<div id="lock">
+  <div class="lcard">
+    <h1>Neyeriz Admin</h1>
+    <p>Giris yapmak icin bilgilerinizi girin</p>
+    <label>Sifre</label><input type="password" id="pw" placeholder="neyeriz2025">
+    <label>GitHub Token</label><input type="password" id="gt-inp" placeholder="ghp_...">
+    <label>Google API Key</label><input type="password" id="ak-inp" placeholder="AIzaSy...">
+    <label>Claude API Key</label><input type="password" id="ck-inp" placeholder="sk-ant-...">
+    <button class="btn btn-gold" onclick="doLogin()">Giris Yap</button>
+    <div class="msg err" id="lerr"></div>
+  </div>
+</div>
+<div id="app">
+  <div class="topbar"><span class="logo">NEYERIZ ADMIN</span><button class="logout" onclick="doLogout()">Cikis</button></div>
+  <div class="main">
+    <div class="card"><div class="stat-row"><div class="stat"><div class="stat-n" id="st1">-</div><div class="stat-l">Mekan</div></div><div class="stat"><div class="stat-n" id="st2">-</div><div class="stat-l">Sehir</div></div><div class="stat"><div class="stat-n" id="st3">-</div><div class="stat-l">Ort Puan</div></div></div></div>
+    <div class="card"><h2>Onay Bekleyenler <span id="sug-cnt" style="color:#C9A84C"></span></h2><div id="sug-list"><div style="font-size:12px;color:rgba(255,255,255,0.3)">Yukleniyor...</div></div><button class="btn btn-outline" style="font-size:11px" onclick="loadSuggestions()">Yenile</button></div>
+    <div class="card"><h2>Mekan Ekle</h2><label>Mekan Adi veya Maps Linki</label><input type="text" id="q" placeholder="Ornek: Nusr-Et Istanbul"><button class="btn btn-gold" id="sbtn" onclick="searchPlace()">Mekan Bul</button><div class="preview" id="preview"><div class="pvn" id="pvn"></div><div class="pvr" id="pvr"></div><div class="pva" id="pva"></div><div class="pvl" id="pvl"></div><div class="pvb" id="pvb"></div><hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:10px 0"><label>Kategori</label><div class="cats" id="cats"></div><button class="btn btn-green" style="margin-top:10px" onclick="addToList()">Listeye Ekle</button></div><div class="msg" id="amsg"></div></div>
+    <div class="card"><h2>Bekleyen Mekanlar (<span id="pcnt">0</span>)</h2><div id="plist"></div><button class="btn btn-outline" id="ubtn" onclick="uploadAll()">Siteye Yukle</button></div>
+    <div class="card"><h2>Mevcut Mekanlar</h2><input type="text" id="exs" placeholder="Mekan ara..." oninput="filterEx()" style="margin-bottom:10px"><div id="exlist" style="max-height:400px;overflow-y:auto"></div></div>
+  </div>
+</div>
+<div class="modal" id="emodal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeEdit()">x</button>
+    <h3>Mekan Duzenle</h3>
+    <label>Mekan Adi</label><input type="text" id="en">
+    <label>Adres</label><input type="text" id="ea">
+    <label>Sehir / Ilce</label><input type="text" id="ec">
+    <label>Ulke</label><input type="text" id="eo">
+    <label>Kategori</label><select id="ecat"></select>
+    <input type="hidden" id="eidx"><input type="hidden" id="epid">
+    <div style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase">Badgeler</span>
+        <button onclick="refreshBadges()" id="rbtn" style="padding:3px 8px;background:rgba(201,168,76,0.15);color:#C9A84C;border:1px solid rgba(201,168,76,0.3);border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit">AI Yenile</button>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:5px;text-transform:uppercase;letter-spacing:1px">Olumlu</div>
+      <div class="bdg-list" id="epos"></div>
+      <div class="bdg-add"><input type="text" id="npos" placeholder="Olumlu badge..."><button onclick="addBdg('p')" style="background:#1A7A2E;color:#fff">+ Ekle</button></div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:10px;margin-bottom:5px;text-transform:uppercase;letter-spacing:1px">Olumsuz</div>
+      <div class="bdg-list" id="eneg"></div>
+      <div class="bdg-add"><input type="text" id="nneg" placeholder="Olumsuz badge..."><button onclick="addBdg('n')" style="background:#C4391A;color:#fff">+ Ekle</button></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn btn-gold" onclick="saveEdit()">Kaydet</button>
+      <button class="btn" style="background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5)" onclick="closeEdit()">Iptal</button>
+    </div>
+  </div>
+</div>
+<script>
+var PW="neyeriz2025",PROXY="https://neyeriz-proxy.sermetbaykal.workers.dev",GR="sermetbaykal/places";
+var GT="",AK="",CK="",seciliKat="",mekan=null,bekleyenler=JSON.parse(localStorage.getItem("bk")||"[]"),allPlaces=[],allBadges={},editBdg={positive:[],negative:[]};
+var KATLAR=[{k:"hamburger",l:"Hamburger"},{k:"steakhouse",l:"Steakhouse"},{k:"italian",l:"Italyan"},{k:"desserts",l:"Tatli"},{k:"coffee",l:"Kahve"},{k:"seafood",l:"Deniz Urunleri"},{k:"cocktail",l:"Kokteyl Bar"},{k:"nightclub",l:"Gece Kulubu"},{k:"traditional",l:"Geleneksel"},{k:"pizza",l:"Pizza"},{k:"kebap",l:"Kebap"},{k:"manti",l:"Manti"},{k:"pide",l:"Pide"},{k:"balik",l:"Balik"},{k:"brunch",l:"Brunch"},{k:"sushi",l:"Sushi"},{k:"vegan",l:"Vegan"},{k:"fastfood",l:"Fast Food"},{k:"fine",l:"Fine Dining"},{k:"bar",l:"Bar"}];
+function enc(t,k){var r="";for(var i=0;i<t.length;i++)r+=String.fromCharCode(t.charCodeAt(i)^k.charCodeAt(i%k.length));return btoa(r);}
+function dec(e,k){try{var t=atob(e),r="";for(var i=0;i<t.length;i++)r+=String.fromCharCode(t.charCodeAt(i)^k.charCodeAt(i%k.length));return r;}catch(x){return "";}}
+window.onload=function(){
+  var sg=localStorage.getItem("enc_gt"),sa=localStorage.getItem("enc_ak"),sc=localStorage.getItem("enc_ck");
+  if(sg)document.getElementById("gt-inp").value="saved";
+  if(sa)document.getElementById("ak-inp").value="saved";
+  if(sc)document.getElementById("ck-inp").value="saved";
+  document.getElementById("pw").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin();});
+};
+function doLogin(){
+  var pw=document.getElementById("pw").value;
+  if(pw!==PW){showMsg("lerr","err","Yanlis sifre");return;}
+  var gv=document.getElementById("gt-inp").value.trim(),av=document.getElementById("ak-inp").value.trim(),cv=document.getElementById("ck-inp").value.trim();
+  if(gv&&gv!=="saved"){GT=gv;localStorage.setItem("enc_gt",enc(GT,pw));}else if(gv==="saved"){var sg=localStorage.getItem("enc_gt");GT=sg?dec(sg,pw):"";}
+  if(av&&av!=="saved"){AK=av;localStorage.setItem("enc_ak",enc(AK,pw));}else if(av==="saved"){var sa=localStorage.getItem("enc_ak");AK=sa?dec(sa,pw):"";}
+  if(cv&&cv!=="saved"){CK=cv;localStorage.setItem("enc_ck",enc(CK,pw));}else if(cv==="saved"){var sc=localStorage.getItem("enc_ck");CK=sc?dec(sc,pw):"";}
+  if(!GT||!AK){showMsg("lerr","err","GitHub Token ve Google API Key zorunlu");return;}
+  document.getElementById("lock").style.display="none";
+  document.getElementById("app").style.display="block";
+  buildCats();
+  document.getElementById("ecat").innerHTML=KATLAR.map(function(k){return'<option value="'+k.k+'">'+k.l+'</option>';}).join("");
+  loadStats();loadSuggestions();loadExisting();renderPending();
+}
+function doLogout(){GT="";AK="";CK="";document.getElementById("app").style.display="none";document.getElementById("lock").style.display="flex";document.getElementById("pw").value="";}
+function buildCats(){var ch=document.getElementById("cats");ch.innerHTML="";KATLAR.forEach(function(k){var b=document.createElement("button");b.className="catbtn";b.textContent=k.l;b.dataset.k=k.k;b.onclick=function(){document.querySelectorAll(".catbtn").forEach(function(x){x.classList.remove("on");});b.classList.add("on");seciliKat=k.k;};ch.appendChild(b);});}
+async function loadStats(){try{var r=await fetch("https://raw.githubusercontent.com/"+GR+"/main/places.json?t="+Date.now());var d=await r.json();document.getElementById("st1").textContent=d.length;document.getElementById("st2").textContent=new Set(d.map(function(p){return p.city;})).size;var avg=d.reduce(function(s,p){return s+(p.rat||0);},0)/d.length;document.getElementById("st3").textContent=avg.toFixed(2);}catch(e){}}
+async function loadSuggestions(){
+  var el=document.getElementById("sug-list"),cnt=document.getElementById("sug-cnt");
+  el.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,0.3)">Yukleniyor...</div>';
+  try{
+    var r=await fetch(PROXY+"/suggestions");var items=await r.json();
+    items=items.filter(function(i){return i&&i.status;});
+    var p=items.filter(function(i){return i.status==="pending";});
+    cnt.textContent=p.length?"("+p.length+")":"";
+    if(!p.length){el.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,0.3)">Onay bekleyen oneri yok</div>';return;}
+    el.innerHTML=p.sort(function(a,b){return b.ts.localeCompare(a.ts);}).map(function(item){
+      var safe=encodeURIComponent(JSON.stringify(item));
+      return'<div class="si"><div class="si-name">'+item.name+'</div><div class="si-meta">'+item.addr+' - '+item.rat.toFixed(1)+'yildiz</div><div class="si-btns"><button class="si-ok" data-item="'+safe+'" onclick="approveSug(this)">Onayla</button><button class="si-no" data-id="'+item.id+'" onclick="rejectSug(this)">Reddet</button></div></div>';
+    }).join("");
+  }catch(e){el.innerHTML='<div style="font-size:12px;color:#F09080">Hata: '+e.message+'</div>';}
+}
+async function approveSug(btn){
+  var item=JSON.parse(decodeURIComponent(btn.getAttribute("data-item")));
+  btn.textContent="Isleniyor...";btn.disabled=true;
+  try{
+    var r1=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.rating,places.userRatingCount,places.formattedAddress,places.addressComponents"},body:JSON.stringify({textQuery:item.name,maxResultCount:1,languageCode:"en"})});
+    var d1=await r1.json();
+    if(d1.places&&d1.places.length){
+      var p=d1.places[0];
+      item.rat=p.rating||item.rat||0;item.rev=p.userRatingCount||0;item.addr=p.formattedAddress||item.addr;item.place_id=p.id||item.place_id;
+      var comps=p.addressComponents||[],district="",city="",country="",cc="";
+      comps.forEach(function(c){if(c.types.indexOf("administrative_area_level_2")>=0)district=c.longText;else if(c.types.indexOf("administrative_area_level_1")>=0)city=c.longText;else if(c.types.indexOf("country")>=0){country=c.longText;cc=c.shortText;}});
+      item.city=district||city||"";item.country=country;
+      item.flag=cc?cc.split("").map(function(ch){return String.fromCodePoint(ch.charCodeAt(0)+127397);}).join(""):"\uD83C\uDF0D";
+    }
+  }catch(e){}
+  var badges={positive:[],negative:[]};
+  try{
+    var r2=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.reviews"},body:JSON.stringify({textQuery:item.name,maxResultCount:1,languageCode:"en"})});
+    var d2=await r2.json();
+    if(d2.places&&d2.places.length){var reviews=(d2.places[0].reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);if(reviews&&CK)badges=await getBadges(reviews);}
+  }catch(e){}
+  item.badges=badges;
+  mekan={place_id:item.place_id||"",name:item.name,addr:item.addr,rat:item.rat,rev:item.rev||0,badges:badges,city:item.city||"",country:item.country||"",flag:item.flag||"\uD83C\uDF0D"};
+  document.getElementById("q").value=item.name;
+  document.getElementById("pvn").textContent=item.name;
+  document.getElementById("pvr").textContent=item.rat.toFixed(1)+" yildiz - "+(item.rev||0).toLocaleString("tr-TR")+" yorum";
+  document.getElementById("pva").textContent=item.addr;
+  document.getElementById("pvl").textContent=(item.flag||"")+" "+(item.city||"")+(item.country?" / "+item.country:"");
+  var bh="";(badges.positive||[]).forEach(function(b){bh+='<span class="rbp">+ '+b+'</span>';});(badges.negative||[]).forEach(function(b){bh+='<span class="rbn">! '+b+'</span>';});
+  document.getElementById("pvb").innerHTML=bh;
+  document.getElementById("preview").style.display="block";
+  await fetch(PROXY+"/suggestions/"+item.id,{method:"DELETE"});
+  loadSuggestions();showMsg("amsg","ok","Onaylandi! Kategori sec ve listeye ekle.");window.scrollTo(0,300);
+}
+async function rejectSug(btn){await fetch(PROXY+"/suggestions/"+btn.getAttribute("data-id"),{method:"DELETE"});loadSuggestions();}
+async function searchPlace(){
+  var q=document.getElementById("q").value.trim();if(!q){showMsg("amsg","err","Mekan adi girin");return;}
+  var btn=document.getElementById("sbtn");btn.textContent="Araniyor...";btn.disabled=true;document.getElementById("preview").style.display="none";
+  try{
+    var r1=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress,places.addressComponents"},body:JSON.stringify({textQuery:q,maxResultCount:1,languageCode:"en"})});
+    var d1=await r1.json();
+    if(!d1.places||!d1.places.length){showMsg("amsg","err","Mekan bulunamadi");btn.textContent="Mekan Bul";btn.disabled=false;return;}
+    var p=d1.places[0];var comps=p.addressComponents||[],district="",city="",country="",cc="";
+    comps.forEach(function(c){if(c.types.indexOf("administrative_area_level_2")>=0)district=c.longText;else if(c.types.indexOf("administrative_area_level_1")>=0)city=c.longText;else if(c.types.indexOf("country")>=0){country=c.longText;cc=c.shortText;}});
+    var dCity=district||city||"";
+    var flag=cc?cc.split("").map(function(ch){return String.fromCodePoint(ch.charCodeAt(0)+127397);}).join(""):"\uD83C\uDF0D";
+    mekan={place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]},city:dCity,country:country,flag:flag};
+    document.getElementById("pvn").textContent=mekan.name;
+    document.getElementById("pvr").textContent=mekan.rat.toFixed(1)+" yildiz - "+mekan.rev.toLocaleString("tr-TR")+" yorum";
+    document.getElementById("pva").textContent=mekan.addr;
+    document.getElementById("pvl").textContent=flag+" "+dCity+(country?" / "+country:"");
+    document.getElementById("pvb").innerHTML='<span style="color:rgba(255,255,255,0.3);font-size:11px">AI analiz yapiliyor...</span>';
+    document.getElementById("preview").style.display="block";
+    try{
+      var r2=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.reviews"},body:JSON.stringify({textQuery:q,maxResultCount:1,languageCode:"en"})});
+      var d2=await r2.json();
+      if(d2.places&&d2.places.length){
+        var reviews=(d2.places[0].reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);
+        if(reviews&&CK){var badges=await getBadges(reviews);mekan.badges=badges;var bh="";(badges.positive||[]).forEach(function(b){bh+='<span class="rbp">+ '+b+'</span>';});(badges.negative||[]).forEach(function(b){bh+='<span class="rbn">! '+b+'</span>';});document.getElementById("pvb").innerHTML=bh||"";}
+        else document.getElementById("pvb").innerHTML="";
+      }
+    }catch(e){document.getElementById("pvb").innerHTML="";}
+  }catch(e){showMsg("amsg","err","Hata: "+e.message);}
+  btn.textContent="Mekan Bul";btn.disabled=false;
+}
+async function getBadges(txt){
+  try{
+    var r=await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json","x-api-key":CK,"anthropic-version":"2023-06-01"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:150,messages:[{role:"user",content:'Restoran yorumlarindan Turkce badge cikar. SADECE JSON: {"positive":[],"negative":[]} Maks 3 pozitif 2 negatif. Max 3 kelime. Yorumlar: '+txt}]})});
+    var d=await r.json();var t=d.content[0].text.trim().replace(/```json|```/g,"").trim();return JSON.parse(t);
+  }catch(e){return{positive:[],negative:[]};}
+}
+function addToList(){
+  if(!mekan){showMsg("amsg","err","Once mekan bul");return;}
+  if(!seciliKat){showMsg("amsg","err","Kategori sec");return;}
+  var kl=KATLAR.find(function(k){return k.k===seciliKat;}).l;
+  bekleyenler.push(Object.assign({},mekan,{cat:seciliKat,cat_label:kl}));
+  localStorage.setItem("bk",JSON.stringify(bekleyenler));
+  document.getElementById("preview").style.display="none";document.getElementById("q").value="";
+  mekan=null;seciliKat="";document.querySelectorAll(".catbtn").forEach(function(x){x.classList.remove("on");});
+  renderPending();showMsg("amsg","ok","Listeye eklendi!");
+}
+function renderPending(){
+  var el=document.getElementById("plist");document.getElementById("pcnt").textContent=bekleyenler.length;
+  el.innerHTML=bekleyenler.map(function(r,i){return'<div class="pitem"><div><div class="pitem-name">'+(r.flag||"")+" "+r.name+'</div><div class="pitem-meta">'+r.city+" - "+r.cat_label+" - "+r.rat.toFixed(1)+" yildiz - "+r.rev+" yorum"+'</div></div><button class="pdel" onclick="remPend('+i+')">x</button></div>';}).join("");
+}
+function remPend(i){bekleyenler.splice(i,1);localStorage.setItem("bk",JSON.stringify(bekleyenler));renderPending();}
+async function uploadAll(){
+  if(!bekleyenler.length){showMsg("amsg","err","Eklenecek mekan yok");return;}
+  var btn=document.getElementById("ubtn");btn.textContent="Yukleniyor...";btn.disabled=true;
+  try{
+    var r1=await fetch("https://api.github.com/repos/"+GR+"/contents/places.json",{headers:{"Authorization":"token "+GT}});var f1=await r1.json();
+    var raw1=atob(f1.content.replace(/\n/g,""));var b1=new Uint8Array(raw1.length);for(var i=0;i<raw1.length;i++)b1[i]=raw1.charCodeAt(i);var places=JSON.parse(new TextDecoder("utf-8").decode(b1));
+    var r2=await fetch("https://api.github.com/repos/"+GR+"/contents/badges.json",{headers:{"Authorization":"token "+GT}});var f2=await r2.json();
+    var raw2=atob(f2.content.replace(/\n/g,""));var b2=new Uint8Array(raw2.length);for(var i=0;i<raw2.length;i++)b2[i]=raw2.charCodeAt(i);var badges=JSON.parse(new TextDecoder("utf-8").decode(b2));
+    bekleyenler.forEach(function(p){if(p.badges&&p.place_id)badges[p.place_id]=p.badges;var c=Object.assign({},p);delete c.badges;places.push(c);});
+    var e1=btoa(unescape(encodeURIComponent(JSON.stringify(places))));
+    var rs1=await(await fetch("https://api.github.com/repos/"+GR+"/contents/places.json",{method:"PUT",headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},body:JSON.stringify({message:"add "+bekleyenler.length+" places",sha:f1.sha,content:e1})})).json();
+    if(!rs1.content){showMsg("amsg","err","Hata: "+JSON.stringify(rs1).slice(0,100));btn.textContent="Siteye Yukle";btn.disabled=false;return;}
+    var e2=btoa(unescape(encodeURIComponent(JSON.stringify(badges))));
+    await fetch("https://api.github.com/repos/"+GR+"/contents/badges.json",{method:"PUT",headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},body:JSON.stringify({message:"update badges",sha:f2.sha,content:e2})});
+    bekleyenler=[];localStorage.setItem("bk","[]");renderPending();
+    showMsg("amsg","ok","Yuklendi! Sitede "+places.length+" mekan var.");loadStats();
+  }catch(e){showMsg("amsg","err","Hata: "+e.message);}
+  btn.textContent="Siteye Yukle";btn.disabled=false;
+}
+async function loadExisting(){
+  try{
+    var r=await fetch("https://raw.githubusercontent.com/"+GR+"/main/places.json?t="+Date.now());allPlaces=await r.json();
+    var r2=await fetch("https://raw.githubusercontent.com/"+GR+"/main/badges.json?t="+Date.now());allBadges=await r2.json();
+    filterEx();
+  }catch(e){}
+}
+function filterEx(){
+  var q=(document.getElementById("exs").value||"").toLowerCase();
+  var f=allPlaces.filter(function(m){return(m.name+m.city+(m.cat_label||"")).toLowerCase().includes(q);});
+  var el=document.getElementById("exlist");
+  if(!f.length){el.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,0.3)">Bulunamadi</div>';return;}
+  el.innerHTML=f.slice(0,60).map(function(m){var idx=allPlaces.indexOf(m);return'<div class="ei"><div><div class="pitem-name">'+(m.flag||"")+" "+m.name+'</div><div class="pitem-meta">'+m.city+" - "+(m.cat_label||m.cat)+" - "+m.rat.toFixed(1)+" yildiz - "+m.rev+" yorum"+'</div></div><div class="ei-btns"><button class="ei-edit" onclick="openEdit('+idx+')">Duzenle</button><button class="ei-del" onclick="delPlace('+idx+')">Sil</button></div></div>';}).join("");
+}
+async function openEdit(idx){
+  var m=allPlaces[idx];
+  document.getElementById("en").value=m.name;document.getElementById("ea").value=m.addr||"";document.getElementById("ec").value=m.city||"";document.getElementById("eo").value=m.country||"";document.getElementById("ecat").value=m.cat;document.getElementById("eidx").value=idx;document.getElementById("epid").value=m.place_id||"";
+  editBdg=JSON.parse(JSON.stringify(allBadges[m.place_id||""]||{positive:[],negative:[]}));renderEditBdg();
+  document.getElementById("emodal").style.display="flex";
+}
+function closeEdit(){document.getElementById("emodal").style.display="none";}
+function renderEditBdg(){
+  document.getElementById("epos").innerHTML=(editBdg.positive||[]).map(function(b,i){return'<span class="rbp" style="cursor:pointer" onclick="remBdg('p','+i+')">'+b+' x</span>';}).join("");
+  document.getElementById("eneg").innerHTML=(editBdg.negative||[]).map(function(b,i){return'<span class="rbn" style="cursor:pointer" onclick="remBdg('n','+i+')">'+b+' x</span>';}).join("");
+}
+function addBdg(t){var inp=document.getElementById(t==="p"?"npos":"nneg");var v=inp.value.trim();if(!v)return;if(t==="p")editBdg.positive.push(v);else editBdg.negative.push(v);inp.value="";renderEditBdg();}
+function remBdg(t,i){if(t==="p")editBdg.positive.splice(i,1);else editBdg.negative.splice(i,1);renderEditBdg();}
+async function refreshBadges(){
+  var name=document.getElementById("en").value;var btn=document.getElementById("rbtn");btn.textContent="Analiz...";btn.disabled=true;
+  try{var r=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.reviews"},body:JSON.stringify({textQuery:name,maxResultCount:1,languageCode:"en"})});var d=await r.json();if(d.places&&d.places.length){var rev=(d.places[0].reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);if(rev&&CK){editBdg=await getBadges(rev);renderEditBdg();}}}catch(e){}
+  btn.textContent="AI Yenile";btn.disabled=false;
+}
+async function saveEdit(){
+  var idx=parseInt(document.getElementById("eidx").value);var pid=document.getElementById("epid").value;var cat=document.getElementById("ecat").value;
+  allPlaces[idx].name=document.getElementById("en").value;allPlaces[idx].addr=document.getElementById("ea").value;allPlaces[idx].city=document.getElementById("ec").value;allPlaces[idx].country=document.getElementById("eo").value;allPlaces[idx].cat=cat;allPlaces[idx].cat_label=KATLAR.find(function(k){return k.k===cat;}).l;
+  if(pid)allBadges[pid]=editBdg;closeEdit();await saveData();filterEx();
+}
+async function delPlace(idx){if(!confirm(allPlaces[idx].name+" silinecek?"))return;allPlaces.splice(idx,1);await saveData();filterEx();loadStats();}
+async function saveData(){
+  try{
+    var r1=await fetch("https://api.github.com/repos/"+GR+"/contents/places.json",{headers:{"Authorization":"token "+GT}});var f1=await r1.json();
+    var e1=btoa(unescape(encodeURIComponent(JSON.stringify(allPlaces))));
+    await fetch("https://api.github.com/repos/"+GR+"/contents/places.json",{method:"PUT",headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},body:JSON.stringify({message:"update places",sha:f1.sha,content:e1})});
+    var r2=await fetch("https://api.github.com/repos/"+GR+"/contents/badges.json",{headers:{"Authorization":"token "+GT}});var f2=await r2.json();
+    var e2=btoa(unescape(encodeURIComponent(JSON.stringify(allBadges))));
+    await fetch("https://api.github.com/repos/"+GR+"/contents/badges.json",{method:"PUT",headers:{"Authorization":"token "+GT,"Content-Type":"application/json"},body:JSON.stringify({message:"update badges",sha:f2.sha,content:e2})});
+    showMsg("amsg","ok","Kaydedildi!");
+  }catch(e){showMsg("amsg","err","Hata: "+e.message);}
+}
+function showMsg(id,type,text){var el=document.getElementById(id);if(!el)return;el.textContent=text;el.className="msg "+type;el.style.display="block";setTimeout(function(){el.style.display="none";},4000);}
+</script>
+</body>
+</html>
