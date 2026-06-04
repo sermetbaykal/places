@@ -209,6 +209,8 @@ async function ara() {
     var d = await r.json();
     if (d.places && d.places.length) {
       var p = d.places[0];
+      if(p.rating) mekan.rat = p.rating;
+      if(p.userRatingCount) mekan.rev = p.userRatingCount;
       var comps = p.addressComponents || [];
       var district="",city="",country="",countryCode="";
       comps.forEach(function(c){
@@ -611,7 +613,7 @@ async function approveSug(btn) {
   try {
     var pr = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method:"POST",
-      headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.addressComponents,places.reviews"},
+      headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.addressComponents,places.reviews,places.rating,places.userRatingCount"},
       body:JSON.stringify({textQuery:item.name,maxResultCount:1,languageCode:"en"})
     });
     var pd = await pr.json();
