@@ -176,7 +176,7 @@ async function approveSug(btn){
       item.rat=p.rating||item.rat||0;item.rev=p.userRatingCount||0;item.addr=p.formattedAddress||item.addr;item.place_id=p.id||item.place_id;
       var comps=p.addressComponents||[],district="",city="",country="",cc="";
       comps.forEach(function(c){if(c.types.indexOf("administrative_area_level_2")>=0)district=c.longText;else if(c.types.indexOf("administrative_area_level_1")>=0)city=c.longText;else if(c.types.indexOf("country")>=0){country=c.longText;cc=c.shortText;}});
-      item.city=district||city||"";item.country=country;
+      item.city=district?(district+(city&&city!==district?", "+city:"")):city||"";item.country=country;
       item.flag=cc?cc.split("").map(function(ch){return String.fromCodePoint(ch.charCodeAt(0)+127397);}).join(""):"\uD83C\uDF0D";
     }
   }catch(e){}
@@ -209,7 +209,7 @@ async function searchPlace(){
     if(!d1.places||!d1.places.length){showMsg("amsg","err","Mekan bulunamadi");btn.textContent="Mekan Bul";btn.disabled=false;return;}
     var p=d1.places[0];var comps=p.addressComponents||[],district="",city="",country="",cc="";
     comps.forEach(function(c){if(c.types.indexOf("administrative_area_level_2")>=0)district=c.longText;else if(c.types.indexOf("administrative_area_level_1")>=0)city=c.longText;else if(c.types.indexOf("country")>=0){country=c.longText;cc=c.shortText;}});
-    var dCity=district||city||"";
+    var dCity=district?(district+(city&&city!==district?", "+city:"")):city||"";
     var flag=cc?cc.split("").map(function(ch){return String.fromCodePoint(ch.charCodeAt(0)+127397);}).join(""):"\uD83C\uDF0D";
     mekan={place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,badges:{positive:[],negative:[]},city:dCity,country:country,flag:flag};
     document.getElementById("pvn").textContent=mekan.name;
