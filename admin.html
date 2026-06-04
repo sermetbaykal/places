@@ -176,12 +176,7 @@ function baslat() {
     };
     ch.appendChild(b);
   });
-  var sel = document.getElementById("sehir");
-  sel.innerHTML = "";
-  SEHIRLER.forEach(function(s) {
-    var o = document.createElement("option");
-    o.value = s.city; o.textContent = s.city; sel.appendChild(o);
-  });
+  // Sehir dropdown kaldirildi
   istatistik();
   listele();
   loadSuggestions();
