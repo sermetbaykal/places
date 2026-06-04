@@ -210,7 +210,8 @@ async function ara() {
     if (d.places && d.places.length) {
       var p = d.places[0];
       if(p.rating) mekan.rat = p.rating;
-      if(p.userRatingCount) mekan.rev = p.userRatingCount;
+      if(p.userRatingCount && p.userRatingCount > 0) mekan.rev = p.userRatingCount;
+      else if(item.rev && item.rev > 0) mekan.rev = item.rev;
       var comps = p.addressComponents || [];
       var district="",city="",country="",countryCode="";
       comps.forEach(function(c){
