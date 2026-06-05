@@ -187,7 +187,7 @@ async function approveSug(btn){
     if(d2.places&&d2.places.length){var reviews=(d2.places[0].reviews||[]).map(function(rv){return rv.text?rv.text.text:"";}).join(" ").slice(0,800);if(reviews&&CK)badges=await getBadges(reviews);}
   }catch(e){}
   item.badges=badges;
-  mekan={place_id:item.place_id||"",name:item.name,addr:item.addr,rat:item.rat,rev:item.rev||0,badges:badges,city:item.city||"",country:item.country||"",flag:item.flag||"\uD83C\uDF0D"};
+  mekan={place_id:item.place_id||"",name:item.name,addr:item.addr,rat:item.rat,rev:item.rev||0,badges:badges,city:item.city||"",country:item.country||"",flag:item.flag||"\uD83C\uDF0D",suggested_by:item.suggested_by||""};
   document.getElementById("q").value=item.name;
   document.getElementById("pvn").textContent=item.name;
   document.getElementById("pvr").textContent=item.rat.toFixed(1)+" yildiz - "+(item.rev||0).toLocaleString("tr-TR")+" yorum";
