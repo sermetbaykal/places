@@ -161,7 +161,7 @@ async function loadSuggestions(){
     if(!p.length){el.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,0.3)">Onay bekleyen oneri yok</div>';return;}
     el.innerHTML=p.sort(function(a,b){return b.ts.localeCompare(a.ts);}).map(function(item){
       var safe=encodeURIComponent(JSON.stringify(item));
-      return'<div class="si"><div class="si-name">'+item.name+'</div><div class="si-meta">'+item.addr+' - '+item.rat.toFixed(1)+'yildiz</div><div class="si-btns"><button class="si-ok" data-item="'+safe+'" onclick="approveSug(this)">Onayla</button><button class="si-no" data-id="'+item.id+'" onclick="rejectSug(this)">Reddet</button></div></div>';
+      return'<div class="si"><div class="si-name">'+item.name+'</div><div class="si-meta">'+item.addr+' - '+item.rat.toFixed(1)+'yildiz'+(item.suggested_by?' &bull; <b>'+item.suggested_by+'</b> onerdi':'')+' </div><div class="si-btns"><button class="si-ok" data-item="'+safe+'" onclick="approveSug(this)">Onayla</button><button class="si-no" data-id="'+item.id+'" onclick="rejectSug(this)">Reddet</button></div></div>';
     }).join("");
   }catch(e){el.innerHTML='<div style="font-size:12px;color:#F09080">Hata: '+e.message+'</div>';}
 }
