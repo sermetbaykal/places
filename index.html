@@ -64,7 +64,7 @@ footer{background:var(--ink);color:rgba(255,255,255,0.35);text-align:center;padd
 footer strong{color:var(--gold)}
 footer a{color:var(--gold);text-decoration:none;margin-left:12px}
 </style>
-</head>
+<link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#C9A84C"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Neyeriz"></head>
 <body>
 <div class="hero"><div class="hi"><div><span class="htag">Dunya Bir Mutfak</span><h1 class="htitle">Biz Yorumlari Okuduk,<br><em>Siz Keyfini Surun.</em></h1></div><div class="hstats"><div class="hst"><span class="hnum" id="hn">-</span><span class="hlbl">Mekan</span></div><div class="hst"><span class="hnum" id="hc">-</span><span class="hlbl">Sehir</span></div><div class="hst"><span class="hnum">20+</span><span class="hlbl">Kategori</span></div></div></div></div>
 <div class="sticky"><div class="filters"><div class="fi"><div class="fg"><span class="fl">Sehir</span><select class="fsel" id="fc"><option value="">Tumu</option></select></div><div class="fg"><span class="fl">Ulke</span><select class="fsel" id="fco"><option value="">Tumu</option></select></div><div class="fg"><span class="fl">Min. Puan</span><select class="fsel" id="fr"><option value="0">Tüm Puanlar</option><option value="4.0">4.0+</option><option value="4.5">4.5+</option><option value="4.6">4.6+</option><option value="4.7">4.7+</option><option value="4.8">4.8+</option></select></div><div class="fg"><span class="fl">Min. Yorum</span><select class="fsel" id="fv"><option value="0">Tumu</option><option value="300">300+</option><option value="500">500+</option><option value="1000">1K+</option><option value="5000">5K+</option></select></div><div class="sw"><span class="fl">Arama</span><input type="text" class="sinp" id="fs2" placeholder="Mekan, sehir..."></div><button class="bc" id="bcsv">CSV</button><button class="bc" onclick="document.getElementById('suggest-modal').style.display='flex'" style="background:#C9A84C;color:#0D0D0D;border-color:#C9A84C">+ Öner</button></div></div><div class="cw"><div class="ci-wrap"><div class="ci" id="chips"></div></div></div></div>
@@ -152,5 +152,5 @@ async function sgSend() {
   btn.textContent = "✓ Öneriyi Gönder"; btn.disabled = false;
 }
 document.getElementById("sg-query").addEventListener("keydown",function(e){if(e.key==="Enter")sgSearch();});
-</script></body>
+</script><script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").then(function(){console.log("SW registered");}).catch(function(e){console.log("SW error:",e);});}</script></body>
 </html>
