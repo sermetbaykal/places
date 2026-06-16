@@ -67,7 +67,7 @@ footer a{color:var(--gold);text-decoration:none;margin-left:12px}
 <link rel="manifest" href="/manifest.json"><meta name="theme-color" content="#C9A84C"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Neyeriz"></head>
 <body>
 <div class="hero"><div class="hi"><div><span class="htag">Dunya Bir Mutfak</span><h1 class="htitle">Biz Yorumlari Okuduk,<br><em>Siz Keyfini Surun.</em></h1></div><div class="hstats"><div class="hst"><span class="hnum" id="hn">-</span><span class="hlbl">Mekan</span></div><div class="hst"><span class="hnum" id="hc">-</span><span class="hlbl">Sehir</span></div><div class="hst"><span class="hnum">20+</span><span class="hlbl">Kategori</span></div></div></div></div>
-<div class="sticky"><div class="filters"><div class="fi"><div class="fg"><span class="fl">Sehir</span><select class="fsel" id="fc"><option value="">Tumu</option></select></div><div class="fg"><span class="fl">Ulke</span><select class="fsel" id="fco"><option value="">Tumu</option></select></div><div class="fg"><span class="fl">Min. Puan</span><select class="fsel" id="fr"><option value="0">Tüm Puanlar</option><option value="4.0">4.0+</option><option value="4.5">4.5+</option><option value="4.6">4.6+</option><option value="4.7">4.7+</option><option value="4.8">4.8+</option></select></div><div class="fg"><span class="fl">Min. Yorum</span><select class="fsel" id="fv"><option value="0">Tumu</option><option value="300">300+</option><option value="500">500+</option><option value="1000">1K+</option><option value="5000">5K+</option></select></div><div class="sw"><span class="fl">Arama</span><input type="text" class="sinp" id="fs2" placeholder="Mekan, sehir..."></div><button class="bc" id="bcsv">CSV</button><button class="bc" onclick="document.getElementById('suggest-modal').style.display='flex'" style="background:#C9A84C;color:#0D0D0D;border-color:#C9A84C">+ Öner</button></div></div><div class="cw"><div class="ci-wrap"><div class="ci" id="chips"></div></div></div></div>
+<div class="sticky"><div class="filters"><div class="fi"><div class="fg"><span class="fl">Sehir</span><select class="fsel" id="fc"><option value="">Tumu</option></select></div><div class="fg"><span class="fl">Ulke</span><select class="fsel" id="fco"><option value="">Tumu</option></select></div><div class="fg"><span class="fl">Min. Puan</span><select class="fsel" id="fr"><option value="0">Tüm Puanlar</option><option value="4.0">4.0+</option><option value="4.5">4.5+</option><option value="4.6">4.6+</option><option value="4.7">4.7+</option><option value="4.8">4.8+</option></select></div><div class="fg"><span class="fl">Min. Yorum</span><select class="fsel" id="fv"><option value="0">Tumu</option><option value="300">300+</option><option value="500">500+</option><option value="1000">1K+</option><option value="5000">5K+</option></select></div><div class="sw"><span class="fl">Arama</span><input type="text" class="sinp" id="fs2" placeholder="Mekan, sehir..."></div><button class="bc" id="bcsv">CSV</button><button class="bc" onclick="document.getElementById('suggest-modal').style.display='flex'" style="background:#C9A84C;color:#0D0D0D;border-color:#C9A84C">+ Öner</button><button class="bc" onclick="openNearby()" style="background:#0D0D0D;color:#C9A84C;border-color:#C9A84C">📍 Yakın</button></div></div><div class="cw"><div class="ci-wrap"><div class="ci" id="chips"></div></div></div></div>
 <div class="sb"><div class="sbi"><div><span class="sn" id="s1">-</span> <span class="sl">gosterilen</span></div><div><span class="sn" id="s2">-</span> <span class="sl">sehir</span></div><div><span class="sn" id="s3">-</span> <span class="sl">ort. puan</span></div></div></div>
 <div class="to" id="cards"></div>
 <footer><strong>Neyeriz</strong> &nbsp;.&nbsp; Dunyanin en iyi mekanlari &nbsp;.&nbsp; 2025<a href="/admin.html">Admin</a></footer>
@@ -152,5 +152,73 @@ async function sgSend() {
   btn.textContent = "✓ Öneriyi Gönder"; btn.disabled = false;
 }
 document.getElementById("sg-query").addEventListener("keydown",function(e){if(e.key==="Enter")sgSearch();});
-</script><script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").then(function(){console.log("SW registered");}).catch(function(e){console.log("SW error:",e);});}</script></body>
+</script><script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").then(function(){console.log("SW registered");}).catch(function(e){console.log("SW error:",e);});}</script>
+<div id="nearby-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto">
+  <div style="background:#fff;border-radius:16px;padding:22px;width:100%;max-width:420px;margin:auto;position:relative">
+    <button onclick="document.getElementById('nearby-modal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:#888">×</button>
+    <div style="font-size:16px;font-weight:700;margin-bottom:4px">📍 Etrafımda Ne Var?</div>
+    <div style="font-size:12px;color:#888;margin-bottom:16px">Konumuna en yakın editör seçkisi mekanlar</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="nearbySearch(500)" style="flex:1;padding:8px;background:#0D0D0D;color:#C9A84C;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">500m</button>
+      <button onclick="nearbySearch(1000)" style="flex:1;padding:8px;background:#0D0D0D;color:#C9A84C;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">1 km</button>
+      <button onclick="nearbySearch(2000)" style="flex:1;padding:8px;background:#0D0D0D;color:#C9A84C;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">2 km</button>
+    </div>
+    <div id="nearby-list"><div style="font-size:12px;color:#888;text-align:center;padding:20px">Konum alınıyor...</div></div>
+  </div>
+</div>
+<script>
+var userLat = null, userLng = null;
+
+function openNearby() {
+  var modal = document.getElementById("nearby-modal");
+  modal.style.display = "flex";
+  document.getElementById("nearby-list").innerHTML = "<div style='font-size:12px;color:#888;text-align:center;padding:20px'>Konum alınıyor...</div>";
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      nearbySearch(1000);
+    }, function() {
+      document.getElementById("nearby-list").innerHTML = "<div style='font-size:12px;color:#F09080;text-align:center;padding:20px'>Konum alınamadı. Lütfen konum iznini etkinleştir.</div>";
+    });
+  }
+}
+
+function haversine(lat1, lng1, lat2, lng2) {
+  var R = 6371000;
+  var dLat = (lat2-lat1) * Math.PI/180;
+  var dLng = (lng2-lng1) * Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)*Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function nearbySearch(radius) {
+  if (!userLat) { openNearby(); return; }
+  var results = ALL.filter(function(p) {
+    if (!p.lat || !p.lng) return false;
+    return haversine(userLat, userLng, p.lat, p.lng) <= radius;
+  }).map(function(p) {
+    return Object.assign({}, p, {_dist: Math.round(haversine(userLat, userLng, p.lat, p.lng))});
+  }).sort(function(a,b) { return b.rat - a.rat; }).slice(0, 10);
+
+  var el = document.getElementById("nearby-list");
+  if (!results.length) {
+    el.innerHTML = "<div style='font-size:12px;color:#888;text-align:center;padding:20px'>" + radius + "m içinde mekan bulunamadı. Aralığı genişlet.</div>";
+    return;
+  }
+  el.innerHTML = results.map(function(p) {
+    var bdg = BADGES[p.place_id] || {positive:[], negative:[]};
+    var bh = (bdg.positive||[]).slice(0,2).map(function(b){return '<span style="background:rgba(26,122,46,0.1);color:#1A7A2E;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600">+'+b+'</span>';}).join(" ");
+    var mu = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.name+" "+p.city)+"&query_place_id="+p.place_id;
+    return '<div style="padding:10px;border-bottom:1px solid #f0f0f0;display:flex;gap:10px;align-items:flex-start">' +
+      '<div style="font-size:20px;min-width:36px;height:36px;background:#F5F0E8;border-radius:8px;display:flex;align-items:center;justify-content:center">' + (p.flag||"🌍") + '</div>' +
+      '<div style="flex:1">' +
+        '<div style="font-size:13px;font-weight:700;margin-bottom:2px">' + p.name + '</div>' +
+        '<div style="font-size:11px;color:#888;margin-bottom:4px">' + p._dist + 'm · ' + p.rat.toFixed(1) + '★ · ' + (p.cat_label||p.cat) + '</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px">' + bh + '</div>' +
+        '<a href="' + mu + '" target="_blank" style="font-size:10px;color:#C9A84C;font-weight:600;text-decoration:none">Haritada Gör →</a>' +
+      '</div></div>';
+  }).join("");
+}
+</script></body>
 </html>
