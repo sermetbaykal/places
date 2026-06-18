@@ -231,8 +231,8 @@ async function searchPlace(){
   btn.textContent="Mekan Bul";btn.disabled=false;
 }
 async function getBadges(txt){
-  var POS = ["Cok lezzetli","Malzeme kaliteli","Porsiyonlar buyuk","Taze urun","Etler yumusak","Deniz urunleri taze","Sunumlar guzel","Tutarli kalite","Guleeryuzlu personel","Hizli servis","Ilgili calisanlar","Fiyat performans iyi","Bolgeye gore uygun","Cok temiz","Ambiyans guzel","Manzara harika","Romantik","Aile dostu","Siparisler hizli","Wifi guclu","Cocuk dostu","Otopark mevcut"];
-  var NEG = ["Lezzetsiz","Asiri tuzlu","Soguk geldi","Yanik geldi","Porsiyon kucuk","Et sert","Balik taze degil","Personel kaba","Siparis unutuldu","Cok bekledik","Gereksiz pahali","Gizli ucretler","Hijyen kotu","Tuvaletler pis","Cok gurultulu","Asiri yavas","Rezervasyon sart","Park sorunu var","Wifi zayif","Cocuklar icin uygun degil"];
+  var POS = ["Çok lezzetli","Malzeme kaliteli","Porsiyonlar büyük","Taze ürün","Etler yumuşak","Deniz ürünleri taze","Sunumlar güzel","Tutarlı kalite","Güler yüzlü personel","Hızlı servis","İlgili çalışanlar","Fiyat performans iyi","Bölgeye göre uygun","Çok temiz","Ambiyans güzel","Manzara harika","Romantik","Aile dostu","Siparişler hızlı","Wifi güçlü","Çocuk dostu","Otopark mevcut"];
+  var NEG = ["Lezzetsiz","Aşırı tuzlu","Soğuk geldi","Yanık geldi","Porsiyon küçük","Et sert","Balık taze değil","Personel kaba","Sipariş unutuldu","Çok bekledik","Gereksiz pahalı","Gizli ücretler","Hijyen kötü","Tuvaletler pis","Çok gürültülü","Aşırı yavaş","Rezervasyon şart","Park sorunu var","Wifi zayıf","Çocuklar için uygun değil"];
   try{
     var r=await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json","x-api-key":CK,"anthropic-version":"2023-06-01"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:300,messages:[{role:"user",content:"Restoran yorumlarini analiz et. SADECE bu listelerden sec. OLUMLU: "+POS.join(",")+". OLUMSUZ: "+NEG.join(",")+". JSON: {positive:[],negative:[]} Maks 4 olumlu 3 olumsuz. Listede olmayan kelime kullanma. Yorumlar: "+txt}]})});
     var d=await r.json();
