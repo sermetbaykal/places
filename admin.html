@@ -231,9 +231,13 @@ async function searchPlace(){
   btn.textContent="Mekan Bul";btn.disabled=false;
 }
 async function getBadges(txt){
+  var POS = ["Cok lezzetli","Malzeme kaliteli","Porsiyonlar buyuk","Taze urun","Etler yumusak","Deniz urunleri taze","Sunumlar guzel","Tutarli kalite","Guleeryuzlu personel","Hizli servis","Ilgili calisanlar","Fiyat performans iyi","Bolgeye gore uygun","Cok temiz","Ambiyans guzel","Manzara harika","Romantik","Aile dostu","Siparisler hizli"];
+  var NEG = ["Lezzetsiz","Asiri tuzlu","Soguk geldi","Yanik geldi","Porsiyon kucuk","Et sert","Balik taze degil","Personel kaba","Siparis unutuldu","Cok bekledik","Gereksiz pahali","Gizli ucretler","Hijyen kotu","Tuvaletler pis","Cok gurultulu","Asiri yavas"];
   try{
-    var r=await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json","x-api-key":CK,"anthropic-version":"2023-06-01"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:150,messages:[{role:"user",content:'Restoran yorumlarindan Turkce badge cikar. SADECE JSON: {"positive":[],"negative":[]} Maks 3 pozitif 2 negatif. Max 3 kelime. Yorumlar: '+txt}]})});
-    var d=await r.json();var t=d.content[0].text.trim().replace(/```json|```/g,"").trim();return JSON.parse(t);
+    var r=await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json","x-api-key":CK,"anthropic-version":"2023-06-01"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:300,messages:[{role:"user",content:"Restoran yorumlarini analiz et. SADECE bu listelerden sec. OLUMLU: "+POS.join(",")+". OLUMSUZ: "+NEG.join(",")+". JSON: {positive:[],negative:[]} Maks 4 olumlu 3 olumsuz. Listede olmayan kelime kullanma. Yorumlar: "+txt}]})});
+    var d=await r.json();
+    var t=d.content[0].text.trim().replace(/```json|```/g,"").trim();
+    return JSON.parse(t);
   }catch(e){return{positive:[],negative:[]};}
 }
 function addToList(){
