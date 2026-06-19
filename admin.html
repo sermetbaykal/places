@@ -122,7 +122,7 @@ input:focus,select:focus{outline:none;border-color:#C9A84C}
 </div>
 <script>
 var PW="neyeriz2025",PROXY="https://neyeriz-proxy.sermetbaykal.workers.dev",GR="sermetbaykal/places";
-var GT="",AK="",CK="",seciliKat="",mekan=null,bekleyenler=JSON.parse(localStorage.getItem("bk")||"[]"),allPlaces=[],allBadges={},editBdg={positive:[],negative:[]};
+var GT="",AK="",CK="",seciliKat=[],mekan=null,bekleyenler=JSON.parse(localStorage.getItem("bk")||"[]"),allPlaces=[],allBadges={},editBdg={positive:[],negative:[]};
 var KATLAR=[{k:"hamburger",l:"Hamburger"},{k:"steakhouse",l:"Steakhouse"},{k:"italian",l:"Italyan"},{k:"desserts",l:"Tatli"},{k:"coffee",l:"Kahve"},{k:"seafood",l:"Deniz Urunleri"},{k:"cocktail",l:"Kokteyl Bar"},{k:"nightclub",l:"Gece Kulubu"},{k:"traditional",l:"Geleneksel"},{k:"pizza",l:"Pizza"},{k:"kebap",l:"Kebap"},{k:"manti",l:"Manti"},{k:"pide",l:"Pide"},{k:"balik",l:"Balik"},{k:"brunch",l:"Brunch"},{k:"sushi",l:"Sushi"},{k:"vegan",l:"Vegan"},{k:"fastfood",l:"Fast Food"},{k:"fine",l:"Fine Dining"},{k:"bar",l:"Bar"}];
 function enc(t,k){var r="";for(var i=0;i<t.length;i++)r+=String.fromCharCode(t.charCodeAt(i)^k.charCodeAt(i%k.length));return btoa(r);}
 function dec(e,k){try{var t=atob(e),r="";for(var i=0;i<t.length;i++)r+=String.fromCharCode(t.charCodeAt(i)^k.charCodeAt(i%k.length));return r;}catch(x){return "";}}
@@ -145,10 +145,10 @@ function doLogin(){
   document.getElementById("app").style.display="block";
   buildCats();
   document.getElementById("ecat").innerHTML=KATLAR.map(function(k){return'<option value="'+k.k+'">'+k.l+'</option>';}).join("");
-  loadStats();loadSuggestions();loadExisting();renderPending();
+  seciliKat=[];loadStats();loadSuggestions();loadExisting();renderPending();
 }
 function doLogout(){GT="";AK="";CK="";document.getElementById("app").style.display="none";document.getElementById("lock").style.display="flex";document.getElementById("pw").value="";}
-function buildCats(){var ch=document.getElementById("cats");ch.innerHTML="";KATLAR.forEach(function(k){var b=document.createElement("button");b.className="catbtn";b.textContent=k.l;b.dataset.k=k.k;b.onclick=function(){document.querySelectorAll(".catbtn").forEach(function(x){x.classList.remove("on");});b.classList.add("on");seciliKat=k.k;};ch.appendChild(b);});}
+function buildCats(){var ch=document.getElementById("cats");ch.innerHTML="";KATLAR.forEach(function(k){var b=document.createElement("button");b.className="catbtn";b.textContent=k.l;b.dataset.k=k.k;b.onclick=function(){var idx=seciliKat.indexOf(k.k);if(idx>=0){seciliKat.splice(idx,1);b.classList.remove("on");}else{if(seciliKat.length>=3){showMsg("amsg","err","Max 3 kategori secebilirsin");return;}seciliKat.push(k.k);b.classList.add("on");}};ch.appendChild(b);});}
 async function loadStats(){try{var r=await fetch("https://raw.githubusercontent.com/"+GR+"/main/places.json?t="+Date.now());var d=await r.json();document.getElementById("st1").textContent=d.length;document.getElementById("st2").textContent=new Set(d.map(function(p){return p.city;})).size;var avg=d.reduce(function(s,p){return s+(p.rat||0);},0)/d.length;document.getElementById("st3").textContent=avg.toFixed(2);}catch(e){}}
 async function loadSuggestions(){
   var el=document.getElementById("sug-list"),cnt=document.getElementById("sug-cnt");
@@ -242,12 +242,12 @@ async function getBadges(txt){
 }
 function addToList(){
   if(!mekan){showMsg("amsg","err","Once mekan bul");return;}
-  if(!seciliKat){showMsg("amsg","err","Kategori sec");return;}
-  var kl=KATLAR.find(function(k){return k.k===seciliKat;}).l;
+  if(!seciliKat.length){showMsg("amsg","err","En az 1 kategori sec");return;}
+  var kl=seciliKat.map(function(k){return KATLAR.find(function(x){return x.k===k;}).l;}).join(", ");
   bekleyenler.push(Object.assign({},mekan,{cat:seciliKat,cat_label:kl}));
   localStorage.setItem("bk",JSON.stringify(bekleyenler));
   document.getElementById("preview").style.display="none";document.getElementById("q").value="";
-  mekan=null;seciliKat="";document.querySelectorAll(".catbtn").forEach(function(x){x.classList.remove("on");});
+  mekan=null;seciliKat=[];document.querySelectorAll(".catbtn").forEach(function(x){x.classList.remove("on");});
   renderPending();showMsg("amsg","ok","Listeye eklendi!");
 }
 function renderPending(){
