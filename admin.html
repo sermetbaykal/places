@@ -169,10 +169,11 @@ async function approveSug(btn){
   var item=JSON.parse(decodeURIComponent(btn.getAttribute("data-item")));
   btn.textContent="Isleniyor...";btn.disabled=true;
   try{
-    var r1=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.rating,places.userRatingCount,places.formattedAddress,places.addressComponents"},body:JSON.stringify({textQuery:item.name,maxResultCount:1,languageCode:"en"})});
+    var r1=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":AK,"X-Goog-FieldMask":"places.id,places.rating,places.userRatingCount,places.formattedAddress,places.addressComponents"},body:JSON.stringify({textQuery:item.name+(item.city?" "+item.city:""),maxResultCount:1,languageCode:"en"})});
     var d1=await r1.json();
-    if(d1.places&&d1.places.length){
-      var p=d1.places[0];
+    var p1 = item.place_id ? d1 : (d1.places && d1.places.length ? d1.places[0] : null);
+    if(p1){
+      var p=p1;
       item.rat=p.rating||item.rat||0;item.rev=p.userRatingCount||0;item.addr=p.formattedAddress||item.addr;item.place_id=p.id||item.place_id;
       var comps=p.addressComponents||[],district="",city="",country="",cc="";
       comps.forEach(function(c){if(c.types.indexOf("administrative_area_level_2")>=0)district=c.longText;else if(c.types.indexOf("administrative_area_level_1")>=0)city=c.longText;else if(c.types.indexOf("country")>=0){country=c.longText;cc=c.shortText;}});
