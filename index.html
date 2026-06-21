@@ -74,6 +74,24 @@ footer a{color:var(--gold);text-decoration:none;margin-left:12px}
 <script>
 var CATS=[{k:"hamburger",l:"Hamburger",bg:"#FEF3DC",fg:"#7A4A08",bd:"#F0C860"},{k:"steakhouse",l:"Steakhouse",bg:"#FDECEA",fg:"#8B2010",bd:"#F09080"},{k:"italian",l:"Italyan",bg:"#FFF0ED",fg:"#8B3010",bd:"#F0A888"},{k:"desserts",l:"Tatli",bg:"#FDE8F4",fg:"#881A50",bd:"#F080C0"},{k:"coffee",l:"Kahve",bg:"#EDE5D8",fg:"#5C3A1E",bd:"#C4A070"},{k:"seafood",l:"Deniz",bg:"#E4F2FD",fg:"#0A4A88",bd:"#70B8F0"},{k:"cocktail",l:"Kokteyl",bg:"#EEE8FD",fg:"#3A2888",bd:"#9880EE"},{k:"nightclub",l:"Gece",bg:"#E8E4F8",fg:"#281E68",bd:"#8870D8"},{k:"traditional",l:"Geleneksel",bg:"#E4F5EE",fg:"#0A5838",bd:"#58C890"},{k:"pizza",l:"Pizza",bg:"#FDECEA",fg:"#7A2010",bd:"#E07858"},{k:"kebap",l:"Kebap",bg:"#FEF0E0",fg:"#8B4000",bd:"#F0A040"},{k:"manti",l:"Manti",bg:"#FDF0E8",fg:"#7A3010",bd:"#E89060"},{k:"pide",l:"Pide",bg:"#FEF5E0",fg:"#806000",bd:"#E8C040"},{k:"balik",l:"Balik",bg:"#E8F4FE",fg:"#004888",bd:"#60A8F0"},{k:"brunch",l:"Brunch",bg:"#F0F8E8",fg:"#2A5810",bd:"#80C850"},{k:"sushi",l:"Sushi",bg:"#FEE8E8",fg:"#880018",bd:"#F06070"},{k:"vegan",l:"Vegan",bg:"#E8F5E0",fg:"#1A5800",bd:"#60B840"},{k:"fastfood",l:"Fast Food",bg:"#FEF0DC",fg:"#884000",bd:"#F0A060"},{k:"fine",l:"Fine Dining",bg:"#F0E8FE",fg:"#380888",bd:"#9060F0"},{k:"bar",l:"Bar",bg:"#E8E0F8",fg:"#281870",bd:"#7060D8"}];
 var ALL=[],BADGES={},ac={},sc="rat",sd=-1;
+
+var isPremium = localStorage.getItem("neyeriz_premium") === "true";
+
+function checkPremium() {
+  return localStorage.getItem("neyeriz_premium") === "true";
+}
+
+function unlockPremium(code) {
+  // Simdilik kod ile ac - sonra gercek odeme sistemi
+  if(code === "NEYERIZ2025") {
+    localStorage.setItem("neyeriz_premium", "true");
+    isPremium = true;
+    render();
+    return true;
+  }
+  return false;
+}
+
 CATS.forEach(function(c){ac[c.k]=true;});
 function ci(k){for(var i=0;i<CATS.length;i++){if(CATS[i].k===k)return CATS[i];}return{k:k,l:k,bg:"#EEE",fg:"#333",bd:"#CCC"};}
 function buildChips(){var el=document.getElementById("chips"),h="";CATS.forEach(function(c){h+='<span class="chip" data-k="'+c.k+'" style="background:'+c.bg+';color:'+c.fg+';border-color:'+c.bd+'">'+c.l+'</span>';});h+='<span class="ca" id="ca">Tumu</span>';el.innerHTML=h;el.querySelectorAll("[data-k]").forEach(function(s){s.addEventListener("click",function(){var k=s.getAttribute("data-k"),c=ci(k);ac[k]=!ac[k];if(ac[k]){s.classList.remove("off");s.style.background=c.bg;s.style.color=c.fg;s.style.borderColor=c.bd;}else s.classList.add("off");render();});});document.getElementById("ca").addEventListener("click",function(){var all=CATS.every(function(c){return ac[c.k];});CATS.forEach(function(c){ac[c.k]=!all;});el.querySelectorAll("[data-k]").forEach(function(s){var k=s.getAttribute("data-k"),c=ci(k);if(ac[k]){s.classList.remove("off");s.style.background=c.bg;s.style.color=c.fg;s.style.borderColor=c.bd;}else s.classList.add("off");});render();});}
@@ -258,6 +276,55 @@ function nearbySearch(radius) {
         '<a href="' + mu + '" target="_blank" style="font-size:10px;color:#C9A84C;font-weight:600;text-decoration:none">Haritada Gör →</a>' +
       '</div></div>';
   }).join("");
+}
+</script>
+<div id="premium-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0D0D0D;border-radius:16px;padding:28px;width:100%;max-width:380px;position:relative;border:1px solid rgba(201,168,76,0.3)">
+    <button onclick="document.getElementById('premium-modal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:#888">x</button>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:28px;margin-bottom:8px">⭐</div>
+      <div style="font-size:18px;font-weight:700;color:#C9A84C;margin-bottom:4px">Neyeriz+</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5)">Gizli mekanlara ve özel içeriklere eriş</div>
+    </div>
+    <div style="background:rgba(201,168,76,0.1);border-radius:10px;padding:14px;margin-bottom:18px">
+      <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.8">
+        ✓ Gizli editör seçkisi mekanlar<br>
+        ✓ Konuma göre tam liste<br>
+        ✓ Her mekan için editör notu<br>
+        ✓ Yeni mekanlar öncelikli bildirim
+      </div>
+    </div>
+    <div style="text-align:center;margin-bottom:14px">
+      <span style="font-size:24px;font-weight:800;color:#C9A84C">29 TL</span>
+      <span style="font-size:12px;color:rgba(255,255,255,0.4)">/ay</span>
+    </div>
+    <input type="text" id="premium-code" placeholder="Üyelik kodu..." style="width:100%;padding:10px;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:13px;margin-bottom:8px;font-family:inherit;text-align:center">
+    <button onclick="activatePremium()" style="width:100%;padding:12px;background:#C9A84C;color:#0D0D0D;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Kodu Kullan</button>
+    <div id="premium-msg" style="display:none;margin-top:8px;padding:8px;border-radius:8px;font-size:12px;text-align:center"></div>
+    <div style="text-align:center;margin-top:12px;font-size:10px;color:rgba(255,255,255,0.3)">Ödeme sistemi yakında aktif olacak</div>
+  </div>
+</div>
+<script>
+function openPremiumModal() {
+  document.getElementById("premium-modal").style.display = "flex";
+}
+
+function activatePremium() {
+  var code = document.getElementById("premium-code").value.trim().toUpperCase();
+  if(unlockPremium(code)) {
+    var msg = document.getElementById("premium-msg");
+    msg.textContent = "🎉 Neyeriz+ aktif! Hoş geldin.";
+    msg.style.background = "rgba(26,122,46,0.2)";
+    msg.style.color = "#58C890";
+    msg.style.display = "block";
+    setTimeout(function(){ document.getElementById("premium-modal").style.display = "none"; }, 2000);
+  } else {
+    var msg = document.getElementById("premium-msg");
+    msg.textContent = "Geçersiz kod.";
+    msg.style.background = "rgba(196,57,26,0.2)";
+    msg.style.color = "#F09080";
+    msg.style.display = "block";
+  }
 }
 </script></body>
 </html>
