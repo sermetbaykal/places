@@ -1,0 +1,20 @@
+{
+  "sermet": {
+    "name": "Sermet",
+    "slug": "sermet",
+    "title": "Kurucu & Baş Editör",
+    "bio": "Neyeriz'in kurucusu. Dünyayı gezerken en iyi mekanleri buluyor.",
+    "avatar": "",
+    "instagram": "",
+    "badge": "editor"
+  },
+  "deniz": {
+    "name": "Deniz",
+    "slug": "deniz",
+    "title": "Neyeriz Editörü",
+    "bio": "Yemek tutkunu, food blogger. En gizli lezzetleri keşfediyor.",
+    "avatar": "",
+    "instagram": "",
+    "badge": "editor"
+  }
+}
