@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Neyeriz Editör</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:#0D0D0D;color:#fff;min-height:100vh}
+.hero{background:linear-gradient(135deg,#0D0D0D 0%,#1A1A1A 100%);padding:40px 20px;text-align:center;border-bottom:1px solid rgba(201,168,76,0.2)}
+.avatar{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#C9A84C,#F0D080);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:700;color:#0D0D0D;margin:0 auto 16px;border:3px solid #C9A84C}
+.editor-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#C9A84C,#F0D080);border-radius:20px;padding:4px 14px;margin-bottom:10px}
+.editor-badge span{font-size:11px;font-weight:700;color:#0D0D0D}
+.editor-name{font-family:"Playfair Display",serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:4px}
+.editor-title{font-size:12px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.editor-bio{font-size:14px;color:rgba(255,255,255,0.6);max-width:400px;margin:0 auto 20px;line-height:1.6}
+.stats{display:flex;gap:24px;justify-content:center;margin-bottom:20px}
+.stat{text-align:center}
+.stat-n{font-size:22px;font-weight:700;color:#C9A84C}
+.stat-l{font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.suggest-btn{display:inline-block;padding:10px 24px;background:#C9A84C;color:#0D0D0D;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;margin-top:4px}
+.main{max-width:600px;margin:0 auto;padding:24px 16px}
+.section-title{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.mcard{background:#1A1A1A;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid rgba(255,255,255,0.07);display:flex;gap:12px;align-items:flex-start}
+.mcard-flag{font-size:24px;min-width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px}
+.mcard-body{flex:1}
+.mcard-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.mcard-meta{font-size:10px;color:rgba(255,255,255,0.35);margin-bottom:6px}
+.mcard-badges{display:flex;flex-wrap:wrap;gap:4px}
+.bdgp{background:rgba(26,122,46,0.2);color:#58C890;padding:3px 8px;border-radius:4px;font-size:9px;font-weight:600}
+.bdgn{background:rgba(196,57,26,0.2);color:#F09080;padding:3px 8px;border-radius:4px;font-size:9px;font-weight:600}
+.mcard-right{text-align:right;flex-shrink:0}
+.mcard-rat{font-size:18px;font-weight:800;color:#C9A84C}
+.mcard-rev{font-size:10px;color:rgba(255,255,255,0.3)}
+.mapbtn{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);text-decoration:none}
+.em{text-align:center;padding:40px 20px;color:rgba(255,255,255,0.3);font-size:13px}
+footer{text-align:center;padding:24px;font-size:11px;color:rgba(255,255,255,0.2);border-top:1px solid rgba(255,255,255,0.06);margin-top:20px}
+footer a{color:#C9A84C;text-decoration:none}
+
+/* Oneri modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;align-items:center;justify-content:center;padding:20px}
+.mbox{background:#1A1A1A;border-radius:16px;padding:24px;width:100%;max-width:400px;position:relative;border:1px solid rgba(255,255,255,0.08)}
+.mbox h3{font-size:15px;font-weight:700;color:#C9A84C;margin-bottom:4px}
+.mbox p{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:16px}
+.mclose{position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,0.3);font-size:20px;cursor:pointer}
+label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.35);display:block;margin-bottom:5px;margin-top:12px}
+input{width:100%;padding:9px 11px;background:#0D0D0D;border:1.5px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;font-size:13px;font-family:inherit}
+input:focus{outline:none;border-color:#C9A84C}
+.sbtn{width:100%;padding:10px;background:#C9A84C;color:#0D0D0D;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:12px;font-family:inherit}
+.msg{margin-top:8px;padding:8px;border-radius:8px;font-size:12px;text-align:center;display:none}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="avatar" id="av">?</div>
+  <div class="editor-badge"><span>🌟 Neyeriz Editörü</span></div>
+  <div class="editor-name" id="ename">Yükleniyor...</div>
+  <div class="editor-title" id="etitle"></div>
+  <div class="editor-bio" id="ebio"></div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="scnt">0</div><div class="stat-l">Mekan</div></div>
+    <div class="stat"><div class="stat-n" id="savg">-</div><div class="stat-l">Ort. Puan</div></div>
+    <div class="stat"><div class="stat-n" id="scity">0</div><div class="stat-l">Şehir</div></div>
+  </div>
+  <button class="suggest-btn" onclick="openSuggest()">+ Mekan Öner</button>
+</div>
+
+<div class="main">
+  <div class="section-title" id="sec-title">Editör Seçkileri</div>
+  <div id="cards"></div>
+</div>
+
+<footer><a href="/">← Neyeriz Ana Sayfa</a></footer>
+
+<!-- Oneri modal -->
+<div class="modal" id="smodal">
+  <div class="mbox">
+    <button class="mclose" onclick="closeSuggest()">x</button>
+    <h3>Mekan Öner</h3>
+    <p id="modal-desc">Harika bir mekan buldun mu?</p>
+    <label>Şehir / Semt</label>
+    <input type="text" id="sg-city" placeholder="ör: Kadıköy, İstanbul">
+    <label>Mekan Adı</label>
+    <input type="text" id="sg-query" placeholder="ör: Forno di Roma">
+    <div id="sg-preview" style="display:none;margin-top:10px;padding:10px;background:#0D0D0D;border-radius:8px;font-size:12px"></div>
+    <button class="sbtn" id="sg-search-btn" onclick="sgSearch()">Mekanı Bul</button>
+    <button class="sbtn" id="sg-send-btn" style="display:none;background:#1A7A2E" onclick="sgSend()">Öneriyi Gönder</button>
+    <div class="msg" id="sg-msg"></div>
+  </div>
+</div>
+
+<script>
+var EDITOR = null;
+var PLACES = [];
+var BADGES = {};
+var editorSlug = "";
+var sgMekan = null;
+
+// URL'den editör slug'ını al
+var path = window.location.pathname;
+var parts = path.split('/');
+editorSlug = parts[parts.length-1] || parts[parts.length-2] || "";
+
+async function init() {
+  try {
+    // Editors.json yükle
+    var er = await fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/editors.json?t="+Date.now());
+    var editors = await er.json();
+    EDITOR = editors[editorSlug.toLowerCase()];
+    
+    if(!EDITOR) {
+      document.getElementById("ename").textContent = "Editör bulunamadı";
+      return;
+    }
+    
+    // Profil doldur
+    document.title = EDITOR.name + " · Neyeriz";
+    document.getElementById("ename").textContent = EDITOR.name;
+    document.getElementById("etitle").textContent = EDITOR.title;
+    document.getElementById("ebio").textContent = EDITOR.bio;
+    document.getElementById("av").textContent = EDITOR.name.charAt(0).toUpperCase();
+    document.getElementById("modal-desc").textContent = EDITOR.name + "'in listesine eklemek için bir mekan öner!";
+    document.getElementById("sec-title").textContent = EDITOR.name + "'in Seçkileri";
+    
+    // Places.json yükle
+    var pr = await fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/places.json?t="+Date.now());
+    PLACES = await pr.json();
+    
+    // Badges.json yükle
+    var br = await fetch("https://raw.githubusercontent.com/sermetbaykal/places/main/badges.json?t="+Date.now());
+    BADGES = await br.json();
+    
+    // Editörün mekanlarını filtrele
+    var editorPlaces = PLACES.filter(function(p){
+      var sb = p.suggested_by || "";
+      return sb.split("|")[0].toLowerCase() === EDITOR.name.toLowerCase();
+    });
+    
+    // Stats
+    document.getElementById("scnt").textContent = editorPlaces.length;
+    document.getElementById("scity").textContent = new Set(editorPlaces.map(function(p){return p.city;})).size;
+    if(editorPlaces.length) {
+      var avg = editorPlaces.reduce(function(s,p){return s+(p.rat||0);},0)/editorPlaces.length;
+      document.getElementById("savg").textContent = avg.toFixed(1);
+    }
+    
+    // Kartları render et
+    renderCards(editorPlaces);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function renderCards(places) {
+  var el = document.getElementById("cards");
+  if(!places.length) { el.innerHTML = '<div class="em">Henüz mekan eklenmemiş</div>'; return; }
+  el.innerHTML = places.sort(function(a,b){return b.rat-a.rat;}).map(function(p){
+    var bdg = BADGES[p.place_id]||{positive:[],negative:[]};
+    var bh = (bdg.positive||[]).slice(0,3).map(function(b){return '<span class="bdgp">+'+b+'</span>';}).join("");
+    bh += (bdg.negative||[]).slice(0,2).map(function(b){return '<span class="bdgn">!'+b+'</span>';}).join("");
+    var mu = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.name+" "+p.city)+"&query_place_id="+p.place_id;
+    return '<div class="mcard"><div class="mcard-flag">'+(p.flag||"🌍")+'</div><div class="mcard-body"><div class="mcard-name">'+p.name+'</div><div class="mcard-meta">'+(p.city||"")+' &middot; '+(p.cat_label||p.cat||"")+'</div><div class="mcard-badges">'+bh+'</div><a class="mapbtn" href="'+mu+'" target="_blank">Haritada Gör →</a></div><div class="mcard-right"><div class="mcard-rat">'+p.rat.toFixed(1)+'★</div><div class="mcard-rev">'+(p.rev||0).toLocaleString("tr-TR")+'</div></div></div>';
+  }).join("");
+}
+
+function openSuggest() { document.getElementById("smodal").style.display = "flex"; }
+function closeSuggest() { document.getElementById("smodal").style.display = "none"; sgReset(); }
+
+async function sgSearch() {
+  var city = document.getElementById("sg-city").value.trim();
+  var q = document.getElementById("sg-query").value.trim();
+  if(!q) { sgMsg("Mekan adı girin","err"); return; }
+  var searchQ = city ? q+" "+city : q;
+  var btn = document.getElementById("sg-search-btn");
+  btn.textContent = "Aranıyor..."; btn.disabled = true;
+  document.getElementById("sg-preview").style.display = "none";
+  document.getElementById("sg-send-btn").style.display = "none";
+  try {
+    var r = await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":"AIzaSyA-gGCMNxcTMb2CsTJYJnlqTxBTY6-NL6I","X-Goog-FieldMask":"places.id,places.displayName,places.rating,places.userRatingCount,places.formattedAddress"},body:JSON.stringify({textQuery:searchQ,maxResultCount:1})});
+    var d = await r.json();
+    if(d.places&&d.places.length){
+      var p = d.places[0];
+      sgMekan = {place_id:p.id||"",name:p.displayName?p.displayName.text:"",addr:p.formattedAddress||"",rat:p.rating||0,rev:p.userRatingCount||0,query:searchQ,suggested_by:EDITOR?EDITOR.name+"|editor":""};
+      var prev = document.getElementById("sg-preview");
+      prev.innerHTML = "<strong>"+sgMekan.name+"</strong><br><span style='color:rgba(255,255,255,0.4)'>"+sgMekan.addr+"</span><br><span style='color:#C9A84C'>"+sgMekan.rat.toFixed(1)+"★ · "+sgMekan.rev.toLocaleString("tr-TR")+" yorum</span>";
+      prev.style.display = "block";
+      document.getElementById("sg-send-btn").style.display = "block";
+    } else { sgMsg("Mekan bulunamadı","err"); }
+  } catch(e) { sgMsg("Hata: "+e.message,"err"); }
+  btn.textContent = "Mekanı Bul"; btn.disabled = false;
+}
+
+async function sgSend() {
+  if(!sgMekan) return;
+  var btn = document.getElementById("sg-send-btn");
+  btn.textContent = "Gönderiliyor..."; btn.disabled = true;
+  try {
+    var r = await fetch("https://neyeriz-proxy.sermetbaykal.workers.dev/suggest",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(sgMekan)});
+    var d = await r.json();
+    if(d.ok){
+      sgMsg("Teşekkürler! Mekan incelemeye alındı.","ok");
+      setTimeout(closeSuggest, 2000);
+    }
+  } catch(e) { sgMsg("Hata: "+e.message,"err"); }
+  btn.textContent = "Öneriyi Gönder"; btn.disabled = false;
+}
+
+function sgReset() {
+  sgMekan = null;
+  document.getElementById("sg-city").value = "";
+  document.getElementById("sg-query").value = "";
+  document.getElementById("sg-preview").style.display = "none";
+  document.getElementById("sg-send-btn").style.display = "none";
+  document.getElementById("sg-msg").style.display = "none";
+}
+
+function sgMsg(text, type) {
+  var el = document.getElementById("sg-msg");
+  el.textContent = text;
+  el.style.background = type==="ok"?"rgba(26,122,46,0.2)":"rgba(196,57,26,0.2)";
+  el.style.color = type==="ok"?"#58C890":"#F09080";
+  el.style.display = "block";
+}
+
+init();
+</script>
+</body>
+</html>
