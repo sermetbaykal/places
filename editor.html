@@ -95,13 +95,8 @@ input:focus{outline:none;border-color:#C9A84C}
 var EDITOR = null;
 var PLACES = [];
 var BADGES = {};
-var editorSlug = "";
+var editorSlug = new URLSearchParams(window.location.search).get("editor") || "";
 var sgMekan = null;
-
-// URL'den editör slug'ını al
-var path = window.location.pathname;
-var parts = path.split('/');
-editorSlug = parts[parts.length-1] || parts[parts.length-2] || "";
 
 async function init() {
   try {
